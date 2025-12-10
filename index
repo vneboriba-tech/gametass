@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>РЕПОРТЁР: Бег за новостью</title>
+  
+  <!-- Шрифты -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Roboto+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Roboto Condensed', sans-serif;
+      background: linear-gradient(135deg, #1a237e 0%, #283593 30%, #3949ab 100%);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Шапка */
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .title {
+      font-family: 'Oswald', sans-serif;
+      font-size: 2.8rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+      color: #ffd600;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-bottom: 15px;
+    }
+
+    /* Игровая зона */
+    .game-container {
+      position: relative;
+      width: 100%;
+      max-width: 800px;
+      height: 400px;
+      background: linear-gradient(to bottom, #82b1ff 0%, #4fc3f7 40%, #29b6f6 100%);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 4px solid #ffd600;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Панель статистики */
+    .stats-panel {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 800px;
+      margin-top: 20px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px 25px;
+      border-radius: 10px;
+      border: 2px solid #ffd600;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 1rem;
+      opacity: 0.8;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-family: 'Oswald', sans-serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: #ffd600;
+    }
+
+    /* Уровни оснащения */
+    .equipment-levels {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .equipment {
+      text-align: center;
+      opacity: 0.5;
+      transition: all 0.3s;
+    }
+
+    .equipment.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .equipment-icon {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      filter: drop-shadow(0 3px 5px rgba(0,0,0,0.3));
+    }
+
+    .equipment-name {
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    /* Управление */
+    .controls {
+      margin-top: 25px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px;
+      border-radius: 10px;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .controls h3 {
+      color: #ffd600;
+      margin-bottom: 10px;
+      font-family: 'Oswald', sans-serif;
+    }
+
+    .key {
+      display: inline-block;
+      padding: 8px 15px;
+      margin: 0 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 5px;
+      border: 1px solid #ffd600;
+      font-family: monospace;
+    }
+
+    /* Экран начала/конца */
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .screen h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 3rem;
+      color: #ffd600;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    .screen p {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      max-width: 600px;
+    }
+
+    .screen .score {
+      font-size: 2.5rem;
+      color: #4caf50;
+      margin: 15px 0;
+    }
+
+    .btn {
+      background: linear-gradient(to bottom, #ffd600 0%, #ffab00 100%);
+      color: #1a237e;
+      border: none;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      margin-top: 20px;
+      font-family: 'Oswald', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Мобильные кнопки */
+    .mobile-controls {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      justify-content: space-around;
+      padding: 0 30px;
+    }
+
+    .mobile-btn {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: rgba(255, 214, 0, 0.8);
+      border: 3px solid white;
+      font-size: 1.5rem;
+      color: #1a237e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Адаптивность */
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2rem;
+      }
+      
+      .game-container {
+        height: 300px;
+      }
+      
+      .stats-panel {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .mobile-controls {
+        display: flex;
+      }
+      
+      .controls {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1 class="title">РЕПОРТЁР: Бег за новостью</h1>
+    <div class="subtitle">Собери все новости и избегай препятствий!</div>
+  </div>
+
+  <div class="equipment-levels">
+    <div class="equipment active" id="level1">
+      <div class="equipment-icon">📰</div>
+      <div class="equipment-name">Газета</div>
+    </div>
+    <div class="equipment" id="level2">
+      <div class="equipment-icon">🎤</div>
+      <div class="equipment-name">Диктофон</div>
+    </div>
+    <div class="equipment" id="level3">
+      <div class="equipment-icon">🎙️</div>
+      <div class="equipment-name">Микрофон</div>
+    </div>
+    <div class="equipment" id="level4">
+      <div class="equipment-icon">📹</div>
+      <div class="equipment-name">Камера</div>
+    </div>
+  </div>
+
+  <div class="game-container">
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    
+    <div class="mobile-controls">
+      <div class="mobile-btn" id="jumpBtn">⬆️</div>
+    </div>
+
+    <div class="screen" id="startScreen">
+      <h2>РЕПОРТЁР</h2>
+      <p>Вы - журналист, который должен собрать все новости!<br>
+      Бегите, прыгайте и собирайте логотипы ТАСС и журфака.</p>
+      <p>С каждым уровнем вы получаете новое оборудование<br>
+      и увеличивается скорость!</p>
+      <button class="btn" id="startBtn">НАЧАТЬ РАБОТУ</button>
+    </div>
+
+    <div class="screen" id="gameOverScreen" style="display: none;">
+      <h2>РЕДАКЦИЯ ЗАКРЫТА</h2>
+      <p>К сожалению, вы не успели к дедлайну...</p>
+      <div class="score" id="finalScore">0</div>
+      <p>Собрано новостей: <span id="collectedItems">0</span></p>
+      <p>Пройдено уровней: <span id="levelsPassed">0</span></p>
+      <button class="btn" id="restartBtn">СДАТЬ СТАТЬЮ ЗАНОВО</button>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stat">
+      <div class="stat-label">УРОВЕНЬ</div>
+      <div class="stat-value" id="levelDisplay">1</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">НОВОСТИ</div>
+      <div class="stat-value" id="scoreDisplay">0</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">СКОРОСТЬ</div>
+      <div class="stat-value" id="speedDisplay">1.0x</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">ОБОРУДОВАНИЕ</div>
+      <div class="stat-value" id="equipmentDisplay">📰</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <h3>УПРАВЛЕНИЕ</h3>
+    <p>ПК: <span class="key">ПРОБЕЛ</span> или <span class="key">СТРЕЛКА ВВЕРХ</span> - Прыжок</p>
+    <p>Телефон: нажмите кнопку <span class="key">⬆️</span> на экране для прыжка</p>
+    <p>Избегайте препятствий и собирайте падающие новости!</p>
+  </div>
+
+  <script>
+    // Основные переменные игры
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const startScreen = document.getElementById('startScreen');
+    const gameOverScreen = document.getElementById('gameOverScreen');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+    
+    // Элементы отображения
+    const levelDisplay = document.getElementById('levelDisplay');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const speedDisplay = document.getElementById('speedDisplay');
+    const equipmentDisplay = document.getElementById('equipmentDisplay');
+    const finalScore = document.getElementById('finalScore');
+    const collectedItems = document.getElementById('collectedItems');
+    const levelsPassed = document.getElementById('levelsPassed');
+    
+    // Уровни оборудования
+    const equipmentLevels = [
+      { icon: '📰', name: 'Газета', color: '#8BC34A' },
+      { icon: '🎤', name: 'Диктофон', color: '#2196F3' },
+      { icon: '🎙️', name: 'Микрофон', color: '#9C27B0' },
+      { icon: '📹', name: 'Камера', color: '#FF5722' }
+    ];
+
+    // Игровые переменные
+    let game = {
+      running: false,
+      score: 0,
+      level: 1,
+      speed: 1.0,
+      lives: 3,
+      equipmentIndex: 0,
+      gameTime: 0,
+      groundY: 350,
+      itemsToNextLevel: 10,
+      itemsCollected: 0
+    };
+
+    // Игрок
+    const player = {
+      x: 100,
+      y: 300,
+      width: 40,
+      height: 80,
+      velocityY: 0,
+      jumpPower: -15,
+      gravity: 0.8,
+      isJumping: false,
+      color: '#FF5722'
+    };
+
+    // Препятствия
+    let obstacles = [];
+    const obstacleTypes = [
+      { width: 60, height: 40, color: '#795548', name: 'Камень' },
+      { width: 80, height: 30, color: '#607D8B', name: 'Бревно' },
+      { width: 40, height: 60, color: '#8D6E63', name: 'Ящик' },
+      { width: 100, height: 20, color: '#78909C', name: 'Барьер' }
+    ];
+
+    // Собираемые предметы
+    let items = [];
+    const itemTypes = [
+      { type: 'tass', value: 5, color: '#D32F2F', radius: 20 },
+      { type: 'journ', value: 10, color: '#1976D2', radius: 25 }
+    ];
+
+    // Загрузка изображений
+    const images = {
+      tass: new Image(),
+      journ: new Image(),
+      background: new Image()
+    };
+
+    images.tass.src = 'tass.png'; // Файл логотипа ТАСС
+    images.journ.src = 'journ.png'; // Файл логотипа журфака
+    images.background.src = 'data:image/svg+xml;base64,' + btoa(`
+      <svg width="800" height="400" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#82b1ff"/>
+            <stop offset="100%" stop-color="#4fc3f7"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="400" fill="url(#sky)"/>
+      </svg>
+    `);
+
+    // Фон (облака)
+    let clouds = [];
+    for (let i = 0; i < 5; i++) {
+      clouds.push({
+        x: Math.random() * 800,
+        y: Math.random() * 150 + 50,
+        speed: Math.random() * 0.5 + 0.2,
+        size: Math.random() * 40 + 20
+      });
+    }
+
+    // Инициализация игры
+    function initGame() {
+      game.running = true;
+      game.score = 0;
+      game.level = 1;
+      game.speed = 1.0;
+      game.lives = 3;
+      game.equipmentIndex = 0;
+      game.gameTime = 0;
+      game.itemsToNextLevel = 10;
+      game.itemsCollected = 0;
+      
+      player.x = 100;
+      player.y = 300;
+      player.velocityY = 0;
+      player.isJumping = false;
+      
+      obstacles = [];
+      items = [];
+      
+      updateDisplay();
+      updateEquipmentIcons();
+      
+      startScreen.style.display = 'none';
+      gameOverScreen.style.display = 'none';
+      
+      gameLoop();
+    }
+
+    // Обновление отображения
+    function updateDisplay() {
+      levelDisplay.textContent = game.level;
+      scoreDisplay.textContent = game.score;
+      speedDisplay.textContent = game.speed.toFixed(1) + 'x';
+      equipmentDisplay.textContent = equipmentLevels[game.equipmentIndex].icon;
+    }
+
+    // Обновление иконок оборудования
+    function updateEquipmentIcons() {
+      document.querySelectorAll('.equipment').forEach((el, index) => {
+        if (index <= game.equipmentIndex) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+    }
+
+    // Создание препятствия
+    function createObstacle() {
+      const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+      const obstacle = {
+        x: 850,
+        y: game.groundY - type.height,
+        width: type.width,
+        height: type.height,
+        color: type.color,
+        name: type.name,
+        speed: 5 * game.speed
+      };
+      obstacles.push(obstacle);
+    }
+
+    // Создание собираемого предмета
+    function createItem() {
+      const type = itemTypes[Math.floor(Math.random() * itemTypes.length)];
+      const item = {
+        x: Math.random() * 600 + 200,
+        y: -50,
+        radius: type.radius,
+        type: type.type,
+        value: type.value,
+        color: type.color,
+        speedY: 3 * game.speed,
+        speedX: (Math.random() - 0.5) * 2
+      };
+      items.push(item);
+    }
+
+    // Прыжок игрока
+    function jump() {
+      if (!player.isJumping && game.running) {
+        player.velocityY = player.jumpPower;
+        player.isJumping = true;
+      }
+    }
+
+    // Обновление физики игрока
+    function updatePlayer() {
+      // Гравитация
+      player.velocityY += player.gravity;
+      player.y += player.velocityY;
+      
+      // Проверка земли
+      if (player.y > game.groundY - player.height) {
+        player.y = game.groundY - player.height;
+        player.velocityY = 0;
+        player.isJumping = false;
+      }
+    }
+
+    // Обновление препятствий
+    function updateObstacles() {
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const obs = obstacles[i];
+        obs.x -= obs.speed;
+        
+        // Проверка столкновения с игроком
+        if (player.x < obs.x + obs.width &&
+            player.x + player.width > obs.x &&
+            player.y < obs.y + obs.height &&
+            player.y + player.height > obs.y) {
+          
+          obstacles.splice(i, 1);
+          game.lives--;
+          
+          if (game.lives <= 0) {
+            gameOver();
+            return;
+          }
+        }
+        
+        // Удаление вышедших за экран
+        if (obs.x + obs.width < 0) {
+          obstacles.splice(i, 1);
+        }
+      }
+    }
+
+    // Обновление предметов
+    function updateItems() {
+      for (let i = items.length - 1; i >= 0; i--) {
+        const item = items[i];
+        item.y += item.speedY;
+        item.x += item.speedX;
+        
+        // Проверка сбора игроком
+        const dx = player.x + player.width/2 - item.x;
+        const dy = player.y - item.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        if (distance < player.width/2 + item.radius) {
+          game.score += item.value;
+          game.itemsCollected++;
+          
+          // Проверка перехода на следующий уровень
+          if (game.itemsCollected >= game.itemsToNextLevel) {
+            levelUp();
+          }
+          
+          items.splice(i, 1);
+          updateDisplay();
+          continue;
+        }
+        
+        // Удаление упавших предметов
+        if (item.y > 450) {
+          items.splice(i, 1);
+        }
+      }
+    }
+
+    // Переход на следующий уровень
+    function levelUp() {
+      game.level++;
+      game.speed += 0.2;
+      
+      // Обновление оборудования (максимум 4 уровня)
+      if (game.equipmentIndex < equipmentLevels.length - 1) {
+        game.equipmentIndex++;
+      }
+      
+      game.itemsCollected = 0;
+      game.itemsToNextLevel = Math.floor(game.itemsToNextLevel * 1.2);
+      
+      updateDisplay();
+      updateEquipmentIcons();
+      
+      // Визуальный эффект перехода уровня
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.3)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Конец игры
+    function gameOver() {
+      game.running = false;
+      finalScore.textContent = game.score;
+      collectedItems.textContent = game.itemsCollected;
+      levelsPassed.textContent = game.level - 1;
+      gameOverScreen.style.display = 'flex';
+    }
+
+    // Отрисовка игрока
+    function drawPlayer() {
+      ctx.save();
+      
+      // Тело
+      ctx.fillStyle = equipmentLevels[game.equipmentIndex].color;
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+      
+      // Голова
+      ctx.fillStyle = '#FFCCBC';
+      ctx.beginPath();
+      ctx.arc(player.x + player.width/2, player.y - 10, 20, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Оборудование в руке
+      ctx.font = '30px Arial';
+      ctx.fillText(equipmentLevels[game.equipmentIndex].icon, 
+                   player.x + player.width + 5, 
+                   player.y + 30);
+      
+      // Анимация бега
+      const legOffset = Math.sin(game.gameTime * 10) * 5;
+      ctx.fillStyle = '#5D4037';
+      ctx.fillRect(player.x - 5, player.y + player.height - 10, 15, 25);
+      ctx.fillRect(player.x + player.width - 10, player.y + player.height - 10 + legOffset, 15, 25);
+      
+      ctx.restore();
+    }
+
+    // Отрисовка препятствий
+    function drawObstacles() {
+      obstacles.forEach(obs => {
+        ctx.save();
+        ctx.fillStyle = obs.color;
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+        
+        // Текст названия препятствия
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(obs.name, obs.x + obs.width/2, obs.y - 5);
+        ctx.restore();
+      });
+    }
+
+    // Отрисовка предметов
+    function drawItems() {
+      items.forEach(item => {
+        ctx.save();
+        
+        // Кружок
+        ctx.fillStyle = item.color;
+        ctx.beginPath();
+        ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Логотип внутри (если изображение загружено)
+        if (images[item.type].complete) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(item.x, item.y, item.radius - 2, 0, Math.PI * 2);
+          ctx.clip();
+          const imgSize = (item.radius - 2) * 2;
+          ctx.drawImage(images[item.type], 
+                       item.x - imgSize/2, 
+                       item.y - imgSize/2, 
+                       imgSize, imgSize);
+          ctx.restore();
+        } else {
+          // Заглушка текстом
+          ctx.fillStyle = 'white';
+          ctx.font = '14px Arial';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(item.type === 'tass' ? 'ТАСС' : 'ЖУРФАК', item.x, item.y);
+        }
+        
+        ctx.restore();
+      });
+    }
+
+    // Отрисовка фона
+    function drawBackground() {
+      // Небо
+      ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+      
+      // Облака
+      clouds.forEach(cloud => {
+        cloud.x -= cloud.speed;
+        if (cloud.x < -100) {
+          cloud.x = 850;
+          cloud.y = Math.random() * 150 + 50;
+        }
+        
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+        ctx.arc(cloud.x + cloud.size * 0.7, cloud.y - cloud.size * 0.3, cloud.size * 0.8, 0, Math.PI * 2);
+        ctx.arc(cloud.x - cloud.size * 0.7, cloud.y - cloud.size * 0.2, cloud.size * 0.7, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      
+      // Земля
+      ctx.fillStyle = '#8BC34A';
+      ctx.fillRect(0, game.groundY, canvas.width, canvas.height - game.groundY);
+      
+      // Трава
+      ctx.fillStyle = '#689F38';
+      for (let i = 0; i < canvas.width; i += 20) {
+        ctx.fillRect(i, game.groundY, 10, 10);
+      }
+    }
+
+    // Отрисовка UI
+    function drawUI() {
+      // Жизни
+      ctx.fillStyle = '#FF5252';
+      for (let i = 0; i < game.lives; i++) {
+        ctx.beginPath();
+        ctx.arc(30 + i * 40, 30, 15, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('❤️', 30 + i * 40, 30);
+      }
+      
+      // Прогресс уровня
+      const progressWidth = 200;
+      const progress = (game.itemsCollected / game.itemsToNextLevel) * progressWidth;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(canvas.width/2 - progressWidth/2, 20, progressWidth, 10);
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(canvas.width/2 - progressWidth/2, 20, progress, 10);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = '12px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${game.itemsCollected}/${game.itemsToNextLevel}`, canvas.width/2, 35);
+    }
+
+    // Главный игровой цикл
+    function gameLoop() {
+      if (!game.running) return;
+      
+      game.gameTime++;
+      
+      // Очистка холста
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Отрисовка
+      drawBackground();
+      drawObstacles();
+      drawItems();
+      drawPlayer();
+      drawUI();
+      
+      // Обновление логики
+      updatePlayer();
+      updateObstacles();
+      updateItems();
+      
+      // Случайное создание препятствий и предметов
+      if (Math.random() < 0.01 * game.speed) {
+        createObstacle();
+      }
+      if (Math.random() < 0.02) {
+        createItem();
+      }
+      
+      requestAnimationFrame(gameLoop);
+    }
+
+    // Управление с клавиатуры
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' || e.key === ' ' || e.key === 'ArrowUp') {
+        jump();
+        e.preventDefault();
+      }
+    });
+
+    // Управление на мобильных
+    jumpBtn.addEventListener('touchstart', (e) => {
+      jump();
+      e.preventDefault();
+    });
+
+    // Нажатие на кнопки начала/рестарта
+    startBtn.addEventListener('click', initGame);
+    restartBtn.addEventListener('click', initGame);
+
+    // Адаптация под мобильные устройства
+    function handleResize() {
+      const container = document.querySelector('.game-container');
+      const rect = container.getBoundingClientRect();
+      
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      
+      // Обновление позиций под новый размер
+      game.groundY = canvas.height * 0.85;
+      player.y = game.groundY - player.height;
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+
+    // Подсказка о загрузке изображений
+    window.addEventListener('load', () => {
+      console.log('Для полной функциональности добавьте файлы:');
+      console.log('- tass.png (логотип ТАСС)');
+      console.log('- journ.png (логотип журфака)');
+    });
+
+  </script>
+</body>
+</html>
