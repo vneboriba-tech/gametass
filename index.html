@@ -2,12 +2,12 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <title>РЕПОРТЁР: Бег за новостью</title>
+  <title>РЕПОРТЁР БЕЖИТ ЗА НОВОСТЬЮ</title>
   
-  <!-- Шрифты как в вашем примере -->
+  <!-- Шрифты -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
     * {
@@ -18,9 +18,8 @@
     }
 
     body {
-      font-family: "Barlow Condensed", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #f5f5f5;
-      background: radial-gradient(circle at top, #253663 0, #050918 60%);
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -29,122 +28,102 @@
       overflow-x: hidden;
     }
 
-    /* Рамка с лого */
-    #logo-frame {
-      padding: 8px 24px;
+    /* Рамка с заголовком */
+    .title-frame {
+      background: white;
+      padding: 15px 40px;
       border-radius: 20px;
-      background: rgba(5, 9, 24, 0.88);
-      border: 2px solid #f1e3b4;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
       margin-bottom: 15px;
-      max-width: 90vw;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+      border: 3px solid #f8f9fa;
+      transform: perspective(500px) rotateX(5deg);
     }
 
-    #logo-frame h1 {
-      font-size: 28px;
-      letter-spacing: 0.2em;
+    .title-frame h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 36px;
+      color: #667eea;
       text-transform: uppercase;
-      text-shadow: 0 4px 8px rgba(0,0,0,0.5);
-      color: #f1e3b4;
-      font-family: "Oswald", sans-serif;
+      letter-spacing: 2px;
       margin: 0;
-      padding: 0;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.1);
     }
 
-    #subtitle {
-      font-size: 16px;
-      opacity: 0.9;
+    .subtitle {
+      color: white;
+      font-size: 18px;
+      text-align: center;
       margin-bottom: 20px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-      text-align: center;
-      max-width: 90vw;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      max-width: 800px;
+      line-height: 1.4;
     }
 
-    /* Панель прогресса оборудования */
-    .equipment-progress {
+    /* Прогресс оборудования */
+    .equipment-track {
       display: flex;
-      justify-content: center;
-      gap: 40px;
-      margin-bottom: 25px;
-      position: relative;
+      align-items: center;
+      margin-bottom: 20px;
+      background: rgba(255,255,255,0.1);
+      padding: 12px 25px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
     }
 
-    .equipment-progress::before {
-      content: '';
-      position: absolute;
-      top: 35px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 4px;
-      background: rgba(241, 227, 180, 0.3);
-      z-index: 1;
-    }
-
-    .equipment-item {
-      position: relative;
-      z-index: 2;
-      text-align: center;
-      transition: all 0.3s ease;
-    }
-
-    .equipment-item.active {
-      transform: scale(1.15);
-    }
-
-    .equipment-item.completed::before {
-      content: '';
-      position: absolute;
-      top: 35px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 30px;
-      height: 4px;
-      background: #f1e3b4;
+    .equipment-stage {
+      display: flex;
+      align-items: center;
+      margin: 0 10px;
     }
 
     .equipment-icon {
-      width: 50px;
-      height: 50px;
-      background: rgba(5, 9, 24, 0.8);
-      border: 2px solid rgba(241, 227, 180, 0.9);
+      width: 45px;
+      height: 45px;
+      background: white;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      margin: 0 auto 8px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      font-size: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+      z-index: 2;
     }
 
-    .equipment-item.active .equipment-icon {
-      background: rgba(241, 227, 180, 0.2);
-      border-color: #f1e3b4;
-      box-shadow: 0 0 20px rgba(241, 227, 180, 0.4);
+    .equipment-stage.active .equipment-icon {
+      transform: scale(1.2);
+      box-shadow: 0 0 20px rgba(255,255,255,0.8);
+      background: #667eea;
+      color: white;
     }
 
-    .equipment-name {
-      font-size: 14px;
-      font-weight: 500;
-      color: rgba(255, 255, 255, 0.9);
+    .equipment-stage.completed .equipment-icon {
+      background: #4CAF50;
+      color: white;
     }
 
-    .equipment-item.active .equipment-name {
-      color: #f1e3b4;
-      font-weight: 600;
+    .connector {
+      width: 50px;
+      height: 3px;
+      background: rgba(255,255,255,0.3);
+      margin: 0 5px;
+    }
+
+    .equipment-stage.completed + .connector {
+      background: #4CAF50;
     }
 
     /* Игровая зона */
     .game-container {
       position: relative;
       width: 100%;
-      max-width: 800px;
-      height: 400px;
-      background: linear-gradient(180deg, #0b1630 0%, #1a237e 100%);
-      border-radius: 16px;
+      max-width: 900px;
+      height: 450px;
+      background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
-      border: 2px solid #f1e3b4;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      border: 5px solid white;
     }
 
     canvas {
@@ -153,70 +132,87 @@
       height: 100%;
     }
 
-    /* Панель статистики */
-    .stats-panel {
-      display: flex;
-      justify-content: space-between;
+    /* Статистика */
+    .stats-display {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
       width: 100%;
-      max-width: 800px;
-      margin-top: 25px;
-      background: rgba(5, 9, 24, 0.8);
-      padding: 15px 25px;
-      border-radius: 12px;
-      border: 1px solid rgba(241, 227, 180, 0.9);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+      max-width: 900px;
+      margin-top: 20px;
     }
 
-    .stat {
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 15px;
       text-align: center;
-      padding: 0 10px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      border: 2px solid #e0e0e0;
     }
 
     .stat-label {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 6px;
+      font-size: 13px;
+      color: #666;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
     }
 
     .stat-value {
-      font-family: "Oswald", sans-serif;
-      font-size: 28px;
-      font-weight: 600;
-      color: #f1e3b4;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      font-family: 'Oswald', sans-serif;
+      font-size: 36px;
+      font-weight: 700;
+      color: #667eea;
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.05);
     }
 
     /* Управление */
-    .controls {
-      margin-top: 25px;
+    .controls-info {
+      margin-top: 20px;
+      color: white;
       text-align: center;
-      background: rgba(5, 9, 24, 0.5);
-      padding: 15px;
-      border-radius: 10px;
-      max-width: 800px;
-      width: 100%;
-      border: 1px solid rgba(241, 227, 180, 0.3);
+      font-size: 16px;
     }
 
-    .controls h3 {
-      color: #f1e3b4;
-      margin-bottom: 10px;
-      font-family: "Oswald", sans-serif;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    .key {
+    .key-hint {
       display: inline-block;
+      background: rgba(255,255,255,0.2);
       padding: 6px 12px;
-      margin: 0 5px;
-      background: rgba(241, 227, 180, 0.1);
-      border-radius: 6px;
-      border: 1px solid rgba(241, 227, 180, 0.5);
+      margin: 0 8px;
+      border-radius: 8px;
       font-family: monospace;
-      font-size: 14px;
+      font-size: 16px;
+    }
+
+    /* Мобильные кнопки */
+    .mobile-controls {
+      display: none;
+      position: absolute;
+      bottom: 25px;
+      right: 25px;
+      z-index: 50;
+    }
+
+    .jump-btn {
+      width: 70px;
+      height: 70px;
+      background: #667eea;
+      border-radius: 50%;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .jump-btn:active {
+      transform: scale(0.95);
+      background: #5a67d8;
     }
 
     /* Экран начала/конца */
@@ -226,7 +222,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(5, 9, 24, 0.95);
+      background: rgba(102, 126, 234, 0.95);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -234,259 +230,226 @@
       z-index: 100;
       text-align: center;
       padding: 40px;
-      backdrop-filter: blur(2px);
     }
 
     .screen h2 {
-      font-family: "Oswald", sans-serif;
-      font-size: 36px;
-      color: #f1e3b4;
-      margin-bottom: 20px;
+      font-family: 'Oswald', sans-serif;
+      font-size: 42px;
+      color: white;
+      margin-bottom: 15px;
       text-transform: uppercase;
-      letter-spacing: 0.15em;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+      letter-spacing: 2px;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
     }
 
     .screen p {
       font-size: 18px;
-      margin-bottom: 15px;
+      color: white;
+      margin-bottom: 10px;
       max-width: 600px;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
-    .screen .score {
-      font-size: 42px;
-      color: #f1e3b4;
-      margin: 20px 0;
-      font-family: "Oswald", sans-serif;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.7);
+    .big-score {
+      font-size: 56px;
+      font-family: 'Oswald', sans-serif;
+      color: #FFD700;
+      margin: 15px 0;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.3);
     }
 
     .btn {
-      background: linear-gradient(135deg, #f1e3b4 0%, #d4b873 100%);
-      color: #0b1630;
+      background: white;
+      color: #667eea;
       border: none;
-      padding: 15px 45px;
+      padding: 16px 40px;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
       border-radius: 50px;
       cursor: pointer;
-      margin-top: 25px;
-      font-family: "Oswald", sans-serif;
+      margin-top: 20px;
+      font-family: 'Oswald', sans-serif;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
+      letter-spacing: 1px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s;
     }
 
     .btn:hover {
       transform: translateY(-3px);
-      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5);
-    }
-
-    .btn:active {
-      transform: translateY(-1px);
-    }
-
-    /* Мобильные кнопки */
-    .mobile-controls {
-      display: none;
-      position: absolute;
-      bottom: 25px;
-      width: 100%;
-      justify-content: space-around;
-      padding: 0 40px;
-      z-index: 50;
-    }
-
-    .mobile-btn {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: rgba(241, 227, 180, 0.9);
-      border: 3px solid rgba(255, 255, 255, 0.9);
-      font-size: 24px;
-      color: #0b1630;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      user-select: none;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
-      transition: all 0.2s;
-    }
-
-    .mobile-btn:active {
-      transform: scale(0.95);
-      background: rgba(241, 227, 180, 1);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
     }
 
     /* Футер */
-    #footer {
+    .footer {
       margin-top: 25px;
-      font-size: 14px;
-      line-height: 1.4;
-      opacity: 0.8;
+      padding: 15px;
       text-align: center;
-      max-width: 90vw;
+      color: white;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .footer .name {
+      font-weight: 600;
+      font-size: 17px;
     }
 
     /* Адаптивность */
     @media (max-width: 768px) {
-      #logo-frame h1 {
-        font-size: 22px;
-        letter-spacing: 0.15em;
+      .title-frame h1 {
+        font-size: 28px;
       }
       
-      #subtitle {
-        font-size: 14px;
+      .title-frame {
+        padding: 12px 25px;
       }
       
-      .equipment-progress {
-        gap: 20px;
+      .subtitle {
+        font-size: 16px;
+        padding: 0 15px;
       }
       
-      .equipment-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 20px;
+      .stats-display {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 0 10px;
       }
       
-      .game-container {
-        height: 350px;
-      }
-      
-      .stats-panel {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-      }
-      
-      .stat {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      
-      .stat-label {
-        margin-bottom: 0;
+      .stat-value {
+        font-size: 28px;
       }
       
       .mobile-controls {
-        display: flex;
+        display: block;
       }
       
-      .controls {
+      .controls-info {
         display: none;
       }
       
       .screen h2 {
-        font-size: 28px;
+        font-size: 32px;
       }
       
       .screen p {
+        font-size: 16px;
+      }
+      
+      .big-score {
+        font-size: 42px;
+      }
+      
+      .btn {
+        padding: 14px 30px;
         font-size: 16px;
       }
     }
   </style>
 </head>
 <body>
-  <!-- Рамка с заголовком -->
-  <div id="logo-frame">
-    <h1>РЕПОРТЁР: Бег за новостью</h1>
+  <!-- Заголовок -->
+  <div class="title-frame">
+    <h1>РЕПОРТЁР БЕЖИТ ЗА НОВОСТЬЮ</h1>
   </div>
 
-  <div id="subtitle">
-    Собери все новости и избегай препятствий!
+  <div class="subtitle">
+    Собирай новости от ТАСС и журфака МГУ, избегай препятствий!
   </div>
 
-  <!-- Прогресс оборудования -->
-  <div class="equipment-progress">
-    <div class="equipment-item active" id="equip1">
+  <!-- Трек оборудования -->
+  <div class="equipment-track">
+    <div class="equipment-stage active" id="equip1">
       <div class="equipment-icon">📰</div>
-      <div class="equipment-name">Газета</div>
     </div>
-    <div class="equipment-item" id="equip2">
+    <div class="connector"></div>
+    <div class="equipment-stage" id="equip2">
       <div class="equipment-icon">🎤</div>
-      <div class="equipment-name">Диктофон</div>
     </div>
-    <div class="equipment-item" id="equip3">
+    <div class="connector"></div>
+    <div class="equipment-stage" id="equip3">
       <div class="equipment-icon">🎙️</div>
-      <div class="equipment-name">Микрофон</div>
     </div>
-    <div class="equipment-item" id="equip4">
+    <div class="connector"></div>
+    <div class="equipment-stage" id="equip4">
       <div class="equipment-icon">📹</div>
-      <div class="equipment-name">Камера</div>
     </div>
   </div>
 
   <!-- Игровая зона -->
   <div class="game-container">
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <canvas id="gameCanvas" width="900" height="450"></canvas>
     
     <!-- Мобильные кнопки -->
     <div class="mobile-controls">
-      <div class="mobile-btn" id="jumpBtn">⬆️</div>
+      <button class="jump-btn" id="jumpBtn">⬆️</button>
     </div>
 
     <!-- Экран начала -->
     <div class="screen" id="startScreen">
       <h2>РЕПОРТЁР</h2>
-      <p>Вы — журналист, бегущий за новостью.<br>
-      Собирайте логотипы ТАСС и журфака, избегайте препятствий.</p>
-      <p>С каждым уровнем вы получаете новое оборудование<br>
-      и увеличивается скорость бега.</p>
-      <button class="btn" id="startBtn">НАЧАТЬ РАБОТУ</button>
+      <p>Беги, прыгай, собирай новости!</p>
+      <p>С каждым уровнем получай новое оборудование</p>
+      <button class="btn" id="startBtn">СТАРТ</button>
     </div>
 
     <!-- Экран конца -->
     <div class="screen" id="gameOverScreen" style="display: none;">
-      <h2>РЕДАКЦИЯ ЗАКРЫТА</h2>
-      <p>Вы не успели к дедлайну...</p>
-      <div class="score" id="finalScore">0</div>
-      <p>Собрано новостей: <span id="collectedItems">0</span></p>
-      <p>Пройдено уровней: <span id="levelsPassed">0</span></p>
-      <button class="btn" id="restartBtn">СДАТЬ СТАТЬЮ ЗАНОВО</button>
+      <h2>КОНЕЦ ИГРЫ</h2>
+      <div class="big-score" id="finalScore">0</div>
+      <p>Собрано новостей: <strong id="collectedItems">0</strong></p>
+      <p>Пройдено уровней: <strong id="levelsPassed">0</strong></p>
+      <button class="btn" id="restartBtn">ИГРАТЬ СНОВА</button>
     </div>
   </div>
 
-  <!-- Панель статистики -->
-  <div class="stats-panel">
-    <div class="stat">
+  <!-- Статистика -->
+  <div class="stats-display">
+    <div class="stat-card">
       <div class="stat-label">УРОВЕНЬ</div>
       <div class="stat-value" id="levelDisplay">1</div>
     </div>
-    <div class="stat">
-      <div class="stat-label">НОВОСТИ</div>
+    <div class="stat-card">
+      <div class="stat-label">ОЧКИ</div>
       <div class="stat-value" id="scoreDisplay">0</div>
     </div>
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-label">СКОРОСТЬ</div>
-      <div class="stat-value" id="speedDisplay">1.0x</div>
+      <div class="stat-value" id="speedDisplay">0.7x</div>
     </div>
-    <div class="stat">
+    <div class="stat-card">
       <div class="stat-label">СНАРЯЖЕНИЕ</div>
       <div class="stat-value" id="equipmentDisplay">📰</div>
     </div>
   </div>
 
   <!-- Управление -->
-  <div class="controls">
-    <h3>УПРАВЛЕНИЕ</h3>
-    <p>ПК: <span class="key">ПРОБЕЛ</span> или <span class="key">СТРЕЛКА ВВЕРХ</span> — прыжок</p>
-    <p>Телефон: нажмите кнопку <span class="key">⬆️</span> на экране</p>
+  <div class="controls-info">
+    <p>ПК: <span class="key-hint">ПРОБЕЛ</span> или <span class="key-hint">↑</span> — ПРЫЖОК</p>
   </div>
 
   <!-- Футер -->
-  <div id="footer">
-    Ксения Михайловна Конкина<br>
-    журфак МГУ лучший 🤍
+  <div class="footer">
+    <div class="name">Ксения Михайловна Конкина</div>
+    <div>журфак МГУ лучший 🤍</div>
   </div>
 
+  <!-- Звуки -->
+  <audio id="jumpSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-in-a-video-game-2043.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="collectSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="hitSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-game-hit-2187.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="levelUpSound" preload="auto">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
-    // Инициализация canvas
+    // Инициализация
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
     
@@ -497,7 +460,7 @@
     const restartBtn = document.getElementById('restartBtn');
     const jumpBtn = document.getElementById('jumpBtn');
     
-    // Отображение статистики
+    // Статистика
     const levelDisplay = document.getElementById('levelDisplay');
     const scoreDisplay = document.getElementById('scoreDisplay');
     const speedDisplay = document.getElementById('speedDisplay');
@@ -506,145 +469,208 @@
     const collectedItems = document.getElementById('collectedItems');
     const levelsPassed = document.getElementById('levelsPassed');
     
-    // Оборудование
-    const equipmentItems = document.querySelectorAll('.equipment-item');
+    // Звуки
+    const sounds = {
+      jump: document.getElementById('jumpSound'),
+      collect: document.getElementById('collectSound'),
+      hit: document.getElementById('hitSound'),
+      levelUp: document.getElementById('levelUpSound')
+    };
 
-    // Конфигурация игры
+    // Конфигурация - СНИЖЕНА СКОРОСТЬ НА 1 УРОВНЕ
     const config = {
       groundHeight: 80,
+      baseSpeed: 6, // Было 8, стало 6 - медленнее
       player: {
         width: 35,
-        height: 65,
-        x: 150,
+        height: 55,
+        x: 100,
         jumpPower: -16,
         gravity: 0.8,
-        moveSpeed: 4
+        moveSpeed: 5
       },
       game: {
-        speed: 1.0,
+        speed: 0.7, // Было 1.0, стало 0.7 - медленнее на первом уровне
         level: 1,
         score: 0,
         lives: 3,
         equipmentIndex: 0,
         itemsCollected: 0,
-        itemsToNextLevel: 8,
+        itemsToNextLevel: 6,
         running: false,
         time: 0
       }
     };
 
-    // Состояние игры
+    // Состояние
     let player = {
       x: config.player.x,
-      y: canvas.height - config.groundHeight - config.player.height,
+      y: 0,
       velocityY: 0,
       isJumping: false,
-      animationFrame: 0
+      frame: 0,
+      direction: 1
     };
 
     let obstacles = [];
     let items = [];
-    let lastObstacleTime = 0;
-    let lastItemTime = 0;
-
-    // Изображения
+    let clouds = [];
+    let lastSpawnTime = 0;
+    
+    // Изображения - БУДЕМ ИСПОЛЬЗОВАТЬ PNG
     const images = {
       tass: new Image(),
-      journ: new Image()
+      journ: new Image(),
+      background: new Image(),
+      playerBody: new Image()
     };
 
-    // Заглушки для изображений (если файлы не загружены)
-    images.tass.onerror = () => {
-      console.log('Файл tass.png не найден, использую заглушку');
-      // Создаём заглушку для ТАСС
-      const tassCanvas = document.createElement('canvas');
-      tassCanvas.width = 100;
-      tassCanvas.height = 100;
-      const tassCtx = tassCanvas.getContext('2d');
+    // Создаём фон и изображения
+    function createGameAssets() {
+      // Фон - голубое небо с облаками
+      const bgCanvas = document.createElement('canvas');
+      bgCanvas.width = 900;
+      bgCanvas.height = 450;
+      const bgCtx = bgCanvas.getContext('2d');
       
-      // Белый круг с красной буквой Т
-      tassCtx.fillStyle = '#ffffff';
-      tassCtx.beginPath();
-      tassCtx.arc(50, 50, 45, 0, Math.PI * 2);
-      tassCtx.fill();
+      // Градиентное небо
+      const gradient = bgCtx.createLinearGradient(0, 0, 0, 450);
+      gradient.addColorStop(0, '#87CEEB');
+      gradient.addColorStop(0.7, '#76B6D8');
+      gradient.addColorStop(1, '#65A3C5');
+      bgCtx.fillStyle = gradient;
+      bgCtx.fillRect(0, 0, 900, 450);
       
-      tassCtx.strokeStyle = '#d32f2f';
-      tassCtx.lineWidth = 6;
-      tassCtx.stroke();
+      // Горы на заднем плане
+      bgCtx.fillStyle = '#6D8B9C';
+      for (let i = 0; i < 3; i++) {
+        const x = i * 400 - 100;
+        const height = 150 + i * 30;
+        bgCtx.beginPath();
+        bgCtx.moveTo(x, 450);
+        bgCtx.lineTo(x + 200, 450 - height);
+        bgCtx.lineTo(x + 400, 450);
+        bgCtx.closePath();
+        bgCtx.fill();
+        
+        // Снежные вершины
+        bgCtx.fillStyle = '#F5F5F5';
+        bgCtx.beginPath();
+        bgCtx.moveTo(x + 180, 450 - height);
+        bgCtx.lineTo(x + 200, 450 - height - 20);
+        bgCtx.lineTo(x + 220, 450 - height);
+        bgCtx.closePath();
+        bgCtx.fill();
+      }
       
-      tassCtx.fillStyle = '#d32f2f';
-      tassCtx.font = 'bold 50px Arial';
-      tassCtx.textAlign = 'center';
-      tassCtx.textBaseline = 'middle';
-      tassCtx.fillText('Т', 50, 50);
+      images.background.src = bgCanvas.toDataURL();
       
-      images.tass.src = tassCanvas.toDataURL();
-    };
-
-    images.journ.onerror = () => {
-      console.log('Файл journ.png не найден, использую заглушку');
-      // Создаём заглушку для журфака
-      const journCanvas = document.createElement('canvas');
-      journCanvas.width = 100;
-      journCanvas.height = 100;
-      const journCtx = journCanvas.getContext('2d');
+      // Загружаем PNG файлы
+      images.tass.src = 'tass.png';
+      images.journ.src = 'journ.png';
       
-      // Синий круг с белой буквой Ж
-      journCtx.fillStyle = '#1976d2';
-      journCtx.beginPath();
-      journCtx.arc(50, 50, 45, 0, Math.PI * 2);
-      journCtx.fill();
+      // Создаём простого персонажа без лица
+      const playerCanvas = document.createElement('canvas');
+      playerCanvas.width = 50;
+      playerCanvas.height = 70;
+      const playerCtx = playerCanvas.getContext('2d');
       
-      journCtx.strokeStyle = '#ffffff';
-      journCtx.lineWidth = 4;
-      journCtx.stroke();
+      // Просто тело - синий прямоугольник
+      playerCtx.fillStyle = '#2196F3';
+      playerCtx.fillRect(10, 20, 30, 40);
       
-      journCtx.fillStyle = '#ffffff';
-      journCtx.font = 'bold 50px Arial';
-      journCtx.textAlign = 'center';
-      journCtx.textBaseline = 'middle';
-      journCtx.fillText('Ж', 50, 50);
+      // Просто голова - круг БЕЗ ЛИЦА
+      playerCtx.fillStyle = '#FFCCBC';
+      playerCtx.beginPath();
+      playerCtx.arc(25, 15, 12, 0, Math.PI * 2);
+      playerCtx.fill();
       
-      images.journ.src = journCanvas.toDataURL();
-    };
-
-    // Пытаемся загрузить реальные файлы
-    images.tass.src = 'tass.png';
-    images.journ.src = 'journ.png';
-
-    // Типы препятствий
-    const obstacleTypes = [
-      { width: 80, height: 50, color: '#8D6E63', name: 'Бревно', shadow: true },
-      { width: 60, height: 40, color: '#795548', name: 'Камень', shadow: true },
-      { width: 50, height: 70, color: '#5D4037', name: 'Ящик', shadow: true },
-      { width: 100, height: 25, color: '#78909C', name: 'Барьер', shadow: false }
-    ];
+      // Просто ноги
+      playerCtx.fillStyle = '#1976D2';
+      playerCtx.fillRect(12, 60, 10, 8);
+      playerCtx.fillRect(28, 60, 10, 8);
+      
+      images.playerBody.src = playerCanvas.toDataURL();
+      
+      // Обработчики ошибок загрузки PNG
+      images.tass.onerror = () => {
+        console.log('Файл tass.png не найден, создаю заглушку');
+        const tassCanvas = document.createElement('canvas');
+        tassCanvas.width = 100;
+        tassCanvas.height = 100;
+        const tassCtx = tassCanvas.getContext('2d');
+        tassCtx.fillStyle = '#ffffff';
+        tassCtx.beginPath();
+        tassCtx.arc(50, 50, 45, 0, Math.PI * 2);
+        tassCtx.fill();
+        tassCtx.strokeStyle = '#d32f2f';
+        tassCtx.lineWidth = 6;
+        tassCtx.stroke();
+        tassCtx.fillStyle = '#d32f2f';
+        tassCtx.font = 'bold 42px Arial';
+        tassCtx.textAlign = 'center';
+        tassCtx.textBaseline = 'middle';
+        tassCtx.fillText('ТАСС', 50, 50);
+        images.tass.src = tassCanvas.toDataURL();
+      };
+      
+      images.journ.onerror = () => {
+        console.log('Файл journ.png не найден, создаю заглушку');
+        const journCanvas = document.createElement('canvas');
+        journCanvas.width = 100;
+        journCanvas.height = 100;
+        const journCtx = journCanvas.getContext('2d');
+        journCtx.fillStyle = '#ffffff';
+        journCtx.beginPath();
+        journCtx.arc(50, 50, 45, 0, Math.PI * 2);
+        journCtx.fill();
+        journCtx.strokeStyle = '#1976d2';
+        journCtx.lineWidth = 6;
+        journCtx.stroke();
+        journCtx.fillStyle = '#1976d2';
+        journCtx.font = 'bold 36px Arial';
+        journCtx.textAlign = 'center';
+        journCtx.textBaseline = 'middle';
+        journCtx.fillText('ЖУРФАК', 50, 50);
+        images.journ.src = journCanvas.toDataURL();
+      };
+    }
 
     // Инициализация игры
     function initGame() {
       config.game.running = true;
       config.game.score = 0;
       config.game.level = 1;
-      config.game.speed = 1.0;
+      config.game.speed = 0.7; // Медленный старт
       config.game.lives = 3;
       config.game.equipmentIndex = 0;
       config.game.itemsCollected = 0;
-      config.game.itemsToNextLevel = 8;
-      config.game.time = 0;
+      config.game.itemsToNextLevel = 6;
       
       player.x = config.player.x;
       player.y = canvas.height - config.groundHeight - config.player.height;
       player.velocityY = 0;
       player.isJumping = false;
-      player.animationFrame = 0;
+      player.frame = 0;
+      player.direction = 1;
       
       obstacles = [];
       items = [];
-      lastObstacleTime = 0;
-      lastItemTime = 0;
+      clouds = [];
+      
+      // Создаём облака
+      for (let i = 0; i < 8; i++) {
+        clouds.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * 200 + 50,
+          speed: Math.random() * 0.3 + 0.2,
+          size: Math.random() * 40 + 30,
+          opacity: Math.random() * 0.3 + 0.7
+        });
+      }
       
       updateDisplay();
-      updateEquipmentProgress();
+      updateEquipmentTrack();
       
       startScreen.style.display = 'none';
       gameOverScreen.style.display = 'none';
@@ -658,21 +684,19 @@
       scoreDisplay.textContent = config.game.score;
       speedDisplay.textContent = config.game.speed.toFixed(1) + 'x';
       
-      // Иконка оборудования
       const icons = ['📰', '🎤', '🎙️', '📹'];
       equipmentDisplay.textContent = icons[config.game.equipmentIndex];
     }
 
-    // Обновление прогресса оборудования
-    function updateEquipmentProgress() {
-      equipmentItems.forEach((item, index) => {
-        item.classList.remove('active', 'completed');
+    // Обновление трека оборудования
+    function updateEquipmentTrack() {
+      document.querySelectorAll('.equipment-stage').forEach((stage, index) => {
+        stage.classList.remove('active', 'completed');
         
         if (index < config.game.equipmentIndex) {
-          item.classList.add('completed');
-        }
-        if (index === config.game.equipmentIndex) {
-          item.classList.add('active');
+          stage.classList.add('completed');
+        } else if (index === config.game.equipmentIndex) {
+          stage.classList.add('active');
         }
       });
     }
@@ -682,16 +706,18 @@
       if (!player.isJumping && config.game.running) {
         player.velocityY = config.player.jumpPower;
         player.isJumping = true;
+        if (sounds.jump) {
+          sounds.jump.currentTime = 0;
+          sounds.jump.play().catch(e => console.log('Звук прыжка не воспроизведён'));
+        }
       }
     }
 
     // Обновление игрока
     function updatePlayer() {
-      // Гравитация
       player.velocityY += config.player.gravity;
       player.y += player.velocityY;
       
-      // Земля
       const groundLevel = canvas.height - config.groundHeight - config.player.height;
       if (player.y > groundLevel) {
         player.y = groundLevel;
@@ -699,57 +725,71 @@
         player.isJumping = false;
       }
       
-      // Анимация
-      player.animationFrame++;
+      player.frame++;
+      // Меняем направление для анимации бега
+      if (player.frame % 10 === 0) {
+        player.direction *= -1;
+      }
     }
 
-    // Создание препятствия
+    // Создание препятствий
     function createObstacle() {
-      const type = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+      const types = [
+        { width: 80, height: 40, color: '#8D6E63' }, // Бревно
+        { width: 50, height: 50, color: '#795548' }, // Камень
+        { width: 40, height: 70, color: '#5D4037' }, // Столб
+        { width: 100, height: 30, color: '#78909C' }  // Платформа
+      ];
+      
+      const type = types[Math.floor(Math.random() * types.length)];
       const obstacle = {
-        x: canvas.width + 50,
+        x: canvas.width,
         y: canvas.height - config.groundHeight - type.height,
         ...type,
-        speed: 6 * config.game.speed
+        speed: config.baseSpeed * config.game.speed
       };
       obstacles.push(obstacle);
     }
 
-    // Создание предмета
+    // Создание предметов
     function createItem() {
       const types = [
-        { type: 'tass', value: 5, radius: 22 },
-        { type: 'journ', value: 10, radius: 25 }
+        { type: 'tass', value: 5, radius: 24 },
+        { type: 'journ', value: 10, radius: 26 }
       ];
       
       const itemType = types[Math.floor(Math.random() * types.length)];
       const item = {
-        x: canvas.width + 30,
-        y: Math.random() * (canvas.height - 200) + 50,
+        x: canvas.width,
+        y: Math.random() * (canvas.height - 250) + 80,
         ...itemType,
-        speed: 4 * config.game.speed,
-        rotation: 0,
-        shadow: true
+        speed: config.baseSpeed * 0.8 * config.game.speed,
+        rotation: Math.random() * Math.PI * 2,
+        floatOffset: Math.random() * Math.PI * 2
       };
       items.push(item);
     }
 
-    // Обновление препятствий
-    function updateObstacles() {
+    // Обновление мира
+    function updateWorld() {
       const currentTime = Date.now();
       
-      // Создание новых препятствий
-      if (currentTime - lastObstacleTime > 1500 / config.game.speed) {
-        createObstacle();
-        lastObstacleTime = currentTime;
+      // Создание препятствий и предметов
+      if (currentTime - lastSpawnTime > 1200 / config.game.speed) { // Больше времени между спавном
+        if (Math.random() > 0.4) {
+          createObstacle();
+        } else {
+          createItem();
+        }
+        lastSpawnTime = currentTime;
       }
       
-      // Обновление существующих
+      // Обновление препятствий
       for (let i = obstacles.length - 1; i >= 0; i--) {
         const obs = obstacles[i];
         obs.x -= obs.speed;
         
-        // Столкновение с игроком
+        // Столкновение
         if (player.x < obs.x + obs.width &&
             player.x + config.player.width > obs.x &&
             player.y < obs.y + obs.height &&
@@ -758,80 +798,98 @@
           obstacles.splice(i, 1);
           config.game.lives--;
           
+          if (sounds.hit) {
+            sounds.hit.currentTime = 0;
+            sounds.hit.play().catch(e => console.log('Звук удара не воспроизведён'));
+          }
+          
           if (config.game.lives <= 0) {
             gameOver();
             return;
           }
         }
         
-        // Удаление за экраном
         if (obs.x + obs.width < 0) {
           obstacles.splice(i, 1);
         }
       }
-    }
-
-    // Обновление предметов
-    function updateItems() {
-      const currentTime = Date.now();
       
-      // Создание новых предметов
-      if (currentTime - lastItemTime > 1200 / config.game.speed) {
-        createItem();
-        lastItemTime = currentTime;
-      }
-      
-      // Обновление существующих
+      // Обновление предметов
       for (let i = items.length - 1; i >= 0; i--) {
         const item = items[i];
         item.x -= item.speed;
-        item.rotation += 0.05;
+        item.rotation += 0.04;
+        item.floatOffset += 0.05;
         
-        // Сбор предмета
+        // Парящий эффект
+        item.y += Math.sin(item.floatOffset) * 0.5;
+        
+        // Сбор
         const dx = player.x + config.player.width/2 - item.x;
-        const dy = player.y - item.y;
+        const dy = player.y + 15 - item.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
-        if (distance < config.player.width/2 + item.radius) {
+        if (distance < (config.player.width/2 + item.radius) * 0.8) {
           config.game.score += item.value;
           config.game.itemsCollected++;
           
-          // Переход на следующий уровень
+          if (sounds.collect) {
+            sounds.collect.currentTime = 0;
+            sounds.collect.play().catch(e => console.log('Звук сбора не воспроизведён'));
+          }
+          
           if (config.game.itemsCollected >= config.game.itemsToNextLevel) {
             levelUp();
           }
           
           items.splice(i, 1);
           updateDisplay();
-          continue;
         }
         
-        // Удаление за экраном
         if (item.x + item.radius < 0) {
           items.splice(i, 1);
         }
       }
+      
+      // Обновление облаков
+      clouds.forEach(cloud => {
+        cloud.x -= cloud.speed * config.game.speed * 0.3;
+        if (cloud.x < -cloud.size * 2) {
+          cloud.x = canvas.width + cloud.size * 2;
+          cloud.y = Math.random() * 200 + 50;
+        }
+      });
     }
 
-    // Переход на следующий уровень
+    // Переход уровня - ПОСТЕПЕННОЕ УВЕЛИЧЕНИЕ СЛОЖНОСТИ
     function levelUp() {
       config.game.level++;
-      config.game.speed += 0.15;
       
-      // Новое оборудование (максимум 4 уровня)
+      // Постепенное увеличение скорости
+      if (config.game.level === 2) {
+        config.game.speed = 0.9;
+      } else if (config.game.level === 3) {
+        config.game.speed = 1.1;
+      } else if (config.game.level === 4) {
+        config.game.speed = 1.4;
+      } else if (config.game.level >= 5) {
+        config.game.speed = Math.min(config.game.speed + 0.15, 2.2); // Максимум 2.2 вместо 2.5
+      }
+      
       if (config.game.equipmentIndex < 3) {
         config.game.equipmentIndex++;
       }
       
       config.game.itemsCollected = 0;
-      config.game.itemsToNextLevel = Math.floor(config.game.itemsToNextLevel * 1.15);
+      config.game.itemsToNextLevel = Math.floor(config.game.itemsToNextLevel * 1.2); // Меньше увеличение
       
       updateDisplay();
-      updateEquipmentProgress();
+      updateEquipmentTrack();
       
-      // Визуальный эффект
-      ctx.fillStyle = 'rgba(241, 227, 180, 0.2)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (sounds.levelUp) {
+        sounds.levelUp.currentTime = 0;
+        sounds.levelUp.play().catch(e => console.log('Звук уровня не воспроизведён'));
+      }
     }
 
     // Конец игры
@@ -845,128 +903,104 @@
 
     // Отрисовка фона
     function drawBackground() {
-      // Градиентное небо
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#0b1630');
-      gradient.addColorStop(0.5, '#1a237e');
-      gradient.addColorStop(1, '#283593');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      // Звёзды
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      for (let i = 0; i < 50; i++) {
-        const x = (i * 13.7) % canvas.width;
-        const y = (i * 5.3) % (canvas.height - config.groundHeight);
-        const size = Math.sin(config.game.time * 0.001 + i) * 0.5 + 1;
-        ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
-        ctx.fill();
+      // Рисуем сохранённый фон
+      if (images.background.complete) {
+        ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
+      } else {
+        // Запасной фон
+        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        gradient.addColorStop(0, '#87CEEB');
+        gradient.addColorStop(1, '#76B6D8');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
       
+      // Облака поверх фона
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      clouds.forEach(cloud => {
+        ctx.globalAlpha = cloud.opacity;
+        ctx.beginPath();
+        ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
+        ctx.arc(cloud.x + cloud.size * 0.7, cloud.y - 15, cloud.size * 0.7, 0, Math.PI * 2);
+        ctx.arc(cloud.x - cloud.size * 0.6, cloud.y - 10, cloud.size * 0.6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1;
+      
       // Земля
-      ctx.fillStyle = '#2E3B4E';
+      ctx.fillStyle = '#8BC34A';
       ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, config.groundHeight);
       
-      // Трава с тенями
-      ctx.fillStyle = '#4CAF50';
-      for (let i = 0; i < canvas.width; i += 15) {
-        const height = 15 + Math.sin(config.game.time * 0.002 + i) * 5;
-        ctx.fillRect(i, canvas.height - config.groundHeight, 10, -height);
+      // Трава с деталями
+      ctx.fillStyle = '#689F38';
+      for (let x = 0; x < canvas.width; x += 25) {
+        const height = 10 + Math.sin(config.game.time * 0.002 + x * 0.1) * 8;
+        ctx.fillRect(x, canvas.height - config.groundHeight, 20, -height);
       }
       
       // Тень от земли
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, 5);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, 3);
     }
 
-    // Отрисовка игрока
+    // Отрисовка игрока - ПРОСТОЙ БЕЗ ЛИЦА
     function drawPlayer() {
       ctx.save();
       
-      // Тень
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      // Тень под персонажем
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
       ctx.beginPath();
       ctx.ellipse(
         player.x + config.player.width/2,
-        canvas.height - config.groundHeight + 5,
-        config.player.width/2 * (0.8 + Math.sin(player.animationFrame * 0.1) * 0.2),
-        5,
+        canvas.height - config.groundHeight + 8,
+        config.player.width/2 * (0.6 + Math.sin(player.frame * 0.15) * 0.4),
+        6,
         0, 0, Math.PI * 2
       );
       ctx.fill();
       
-      // Тело
-      const colors = ['#FF5722', '#2196F3', '#9C27B0', '#FF9800'];
-      ctx.fillStyle = colors[config.game.equipmentIndex];
-      
-      // Скруглённый прямоугольник для тела
-      ctx.beginPath();
-      ctx.roundRect(player.x, player.y, config.player.width, config.player.height, 8);
-      ctx.fill();
-      
-      // Тень на теле
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-      ctx.beginPath();
-      ctx.roundRect(player.x, player.y, config.player.width, config.player.height/2, 8);
-      ctx.fill();
-      
-      // Голова
-      ctx.fillStyle = '#FFCCBC';
-      ctx.beginPath();
-      ctx.arc(
-        player.x + config.player.width/2,
-        player.y - 8,
-        18,
-        0, Math.PI * 2
-      );
-      ctx.fill();
-      
-      // Волосы
-      ctx.fillStyle = '#5D4037';
-      ctx.beginPath();
-      ctx.arc(
-        player.x + config.player.width/2,
-        player.y - 15,
-        15,
-        Math.PI, Math.PI * 2
-      );
-      ctx.fill();
+      // Если есть изображение персонажа - рисуем его
+      if (images.playerBody.complete) {
+        ctx.drawImage(
+          images.playerBody,
+          player.x,
+          player.y - 5,
+          config.player.width,
+          config.player.height + 10
+        );
+      } else {
+        // Запасной вариант - простая фигура
+        // Тело (синий)
+        ctx.fillStyle = '#2196F3';
+        ctx.fillRect(player.x, player.y, config.player.width, config.player.height);
+        
+        // Голова (просто круг БЕЗ ЛИЦА)
+        ctx.fillStyle = '#FFCCBC';
+        ctx.beginPath();
+        ctx.arc(
+          player.x + config.player.width/2,
+          player.y - 5,
+          15,
+          0, Math.PI * 2
+        );
+        ctx.fill();
+        
+        // Ноги (тёмно-синие)
+        ctx.fillStyle = '#1976D2';
+        const legOffset = Math.sin(player.frame * 0.2) * 8;
+        ctx.fillRect(player.x + 5, player.y + config.player.height - 10, 10, 20 + legOffset);
+        ctx.fillRect(player.x + config.player.width - 15, player.y + config.player.height - 10, 10, 20 - legOffset);
+      }
       
       // Оборудование в руке
-      const equipmentIcons = ['📰', '🎤', '🎙️', '📹'];
+      const icons = ['📰', '🎤', '🎙️', '📹'];
       ctx.font = '24px Arial';
+      ctx.fillStyle = '#000000';
       ctx.fillText(
-        equipmentIcons[config.game.equipmentIndex],
-        player.x + config.player.width + 8,
+        icons[config.game.equipmentIndex],
+        player.x + config.player.width + (player.direction > 0 ? 5 : -30),
         player.y + 25
       );
-      
-      // Ноги (анимация бега)
-      const legOffset = Math.sin(player.animationFrame * 0.2) * 8;
-      ctx.fillStyle = '#5D4037';
-      
-      // Левая нога
-      ctx.beginPath();
-      ctx.roundRect(
-        player.x - 5,
-        player.y + config.player.height - 15,
-        12,
-        20 + legOffset,
-        4
-      );
-      ctx.fill();
-      
-      // Правая нога
-      ctx.beginPath();
-      ctx.roundRect(
-        player.x + config.player.width - 7,
-        player.y + config.player.height - 15,
-        12,
-        20 - legOffset,
-        4
-      );
-      ctx.fill();
       
       ctx.restore();
     }
@@ -977,28 +1011,22 @@
         ctx.save();
         
         // Тень
-        if (obs.shadow) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-          ctx.fillRect(obs.x, obs.y + obs.height, obs.width, 5);
-        }
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+        ctx.fillRect(obs.x, obs.y + obs.height, obs.width, 6);
         
-        // Основной цвет
+        // Препятствие
         ctx.fillStyle = obs.color;
-        ctx.beginPath();
-        ctx.roundRect(obs.x, obs.y, obs.width, obs.height, 6);
-        ctx.fill();
+        ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
         
-        // Тень на объекте
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.beginPath();
-        ctx.roundRect(obs.x, obs.y, obs.width, obs.height/3, 6);
-        ctx.fill();
-        
-        // Название
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.font = '12px "Barlow Condensed"';
-        ctx.textAlign = 'center';
-        ctx.fillText(obs.name, obs.x + obs.width/2, obs.y - 10);
+        // Текстура
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        for (let i = 0; i < obs.width; i += 10) {
+          for (let j = 0; j < obs.height; j += 10) {
+            if (Math.random() > 0.7) {
+              ctx.fillRect(obs.x + i, obs.y + j, 4, 4);
+            }
+          }
+        }
         
         ctx.restore();
       });
@@ -1010,22 +1038,17 @@
         ctx.save();
         
         // Тень
-        if (item.shadow) {
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-          ctx.beginPath();
-          ctx.ellipse(item.x, item.y + item.radius + 3, item.radius * 0.8, 4, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.beginPath();
+        ctx.ellipse(item.x, item.y + item.radius + 4, item.radius * 0.8, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
         
         // Вращение
         ctx.translate(item.x, item.y);
         ctx.rotate(item.rotation);
         
-        // Белый круг с градиентом
-        const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, item.radius);
-        gradient.addColorStop(0, '#ffffff');
-        gradient.addColorStop(1, '#f5f5f5');
-        ctx.fillStyle = gradient;
+        // Белый круг
+        ctx.fillStyle = '#ffffff';
         ctx.beginPath();
         ctx.arc(0, 0, item.radius, 0, Math.PI * 2);
         ctx.fill();
@@ -1035,14 +1058,15 @@
         ctx.lineWidth = 3;
         ctx.stroke();
         
-        // Логотип по центру
+        // Логотип PNG по центру
         const img = images[item.type];
-        if (img.complete) {
+        if (img && img.complete) {
           ctx.save();
           ctx.beginPath();
           ctx.arc(0, 0, item.radius - 4, 0, Math.PI * 2);
           ctx.clip();
-          ctx.drawImage(img, -item.radius + 4, -item.radius + 4, (item.radius - 4) * 2, (item.radius - 4) * 2);
+          const size = (item.radius - 4) * 2;
+          ctx.drawImage(img, -size/2, -size/2, size, size);
           ctx.restore();
         }
         
@@ -1054,38 +1078,68 @@
     function drawUI() {
       // Жизни
       ctx.fillStyle = '#FF5252';
-      ctx.font = '20px Arial';
+      ctx.font = 'bold 30px Arial';
+      ctx.textAlign = 'left';
       for (let i = 0; i < config.game.lives; i++) {
-        ctx.fillText('❤️', 20 + i * 35, 35);
+        ctx.fillText('❤️', 25 + i * 45, 50);
+      }
+      
+      // Тень под текстом жизни
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.font = 'bold 30px Arial';
+      for (let i = 0; i < config.game.lives; i++) {
+        ctx.fillText('❤️', 26 + i * 45, 51);
       }
       
       // Прогресс уровня
-      const progressWidth = 200;
-      const progress = (config.game.itemsCollected / config.game.itemsToNextLevel) * progressWidth;
+      const barWidth = 280;
+      const progress = (config.game.itemsCollected / config.game.itemsToNextLevel) * barWidth;
+      const barX = canvas.width/2 - barWidth/2;
+      const barY = 35;
       
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.fillRect(canvas.width/2 - progressWidth/2, 20, progressWidth, 10);
+      // Фон полосы
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+      ctx.fillRect(barX - 2, barY - 2, barWidth + 4, 24);
       
-      ctx.fillStyle = '#f1e3b4';
-      ctx.fillRect(canvas.width/2 - progressWidth/2, 20, progress, 10);
+      // Полоса прогресса
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.fillRect(barX, barY, barWidth, 20);
+      
+      // Заполненная часть
+      const gradient = ctx.createLinearGradient(barX, barY, barX + progress, barY);
+      gradient.addColorStop(0, '#667eea');
+      gradient.addColorStop(1, '#764ba2');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(barX, barY, progress, 20);
       
       // Текст прогресса
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '14px "Barlow Condensed"';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 22px Montserrat';
       ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
       ctx.fillText(
-        `${config.game.itemsCollected}/${config.game.itemsToNextLevel}`,
+        `${config.game.itemsCollected} / ${config.game.itemsToNextLevel}`,
         canvas.width/2,
-        35
+        barY + 10
       );
       
       // Тень под текстом
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
       ctx.fillText(
-        `${config.game.itemsCollected}/${config.game.itemsToNextLevel}`,
+        `${config.game.itemsCollected} / ${config.game.itemsToNextLevel}`,
         canvas.width/2 + 1,
-        36
+        barY + 11
       );
+      
+      // Текущий уровень
+      ctx.fillStyle = '#667eea';
+      ctx.font = 'bold 36px Oswald';
+      ctx.textAlign = 'right';
+      ctx.fillText(`УР ${config.game.level}`, canvas.width - 25, 50);
+      
+      // Тень под уровнем
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillText(`УР ${config.game.level}`, canvas.width - 24, 51);
     }
 
     // Игровой цикл
@@ -1096,8 +1150,7 @@
       
       // Обновление
       updatePlayer();
-      updateObstacles();
-      updateItems();
+      updateWorld();
       
       // Отрисовка
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -1120,6 +1173,7 @@
     });
 
     // Мобильное управление
+    jumpBtn.addEventListener('click', jump);
     jumpBtn.addEventListener('touchstart', (e) => {
       jump();
       e.preventDefault();
@@ -1137,16 +1191,17 @@
       canvas.width = rect.width;
       canvas.height = rect.height;
       
-      // Обновление позиций
       player.y = canvas.height - config.groundHeight - config.player.height;
     }
 
     window.addEventListener('resize', handleResize);
-    handleResize();
-
+    
     // Запуск
+    createGameAssets();
     handleResize();
-    console.log('Игра готова! Используйте файлы tass.png и journ.png для логотипов');
+    
+    console.log('Игра "РЕПОРТЁР БЕЖИТ ЗА НОВОСТЬЮ" готова!');
+    console.log('Используются PNG файлы: tass.png, journ.png');
 
   </script>
 </body>
