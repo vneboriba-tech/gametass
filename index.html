@@ -434,20 +434,6 @@
     <div>журфак МГУ лучший 🤍</div>
   </div>
 
-  <!-- Звуки -->
-  <audio id="jumpSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-player-jumping-in-a-video-game-2043.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="collectSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="hitSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-retro-arcade-game-hit-2187.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="levelUpSound" preload="auto">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" type="audio/mpeg">
-  </audio>
-
   <script>
     // Инициализация
     const canvas = document.getElementById('gameCanvas');
@@ -468,16 +454,8 @@
     const finalScore = document.getElementById('finalScore');
     const collectedItems = document.getElementById('collectedItems');
     const levelsPassed = document.getElementById('levelsPassed');
-    
-    // Звуки
-    const sounds = {
-      jump: document.getElementById('jumpSound'),
-      collect: document.getElementById('collectSound'),
-      hit: document.getElementById('hitSound'),
-      levelUp: document.getElementById('levelUpSound')
-    };
 
-    // Конфигурация - СНИЖЕНА СКОРОСТЬ НА 1 УРОВНЕ
+    // Конфигурация
     const config = {
       groundHeight: 80,
       baseSpeed: 6,
@@ -517,17 +495,16 @@
     let clouds = [];
     let lastSpawnTime = 0;
     
-    // Изображения - БУДЕМ ИСПОЛЬЗОВАТЬ PNG
+    // Изображения
     const images = {
       tass: new Image(),
       journ: new Image(),
-      background: new Image(),
-      playerBody: new Image()
+      background: new Image()
     };
 
     // Создаём фон и изображения
     function createGameAssets() {
-      // Фон - голубое небо с облаками
+      // Создаём простой фон (не загружаем внешние ресурсы)
       const bgCanvas = document.createElement('canvas');
       bgCanvas.width = 900;
       bgCanvas.height = 450;
@@ -565,32 +542,46 @@
       
       images.background.src = bgCanvas.toDataURL();
       
-      // Загружаем PNG файлы - БЕЗ обработчиков ошибок!
-      images.tass.src = 'tass.png';
-      images.journ.src = 'journ.png';
+      // Загружаем PNG файлы с кешированием
+      images.tass.crossOrigin = "anonymous";
+      images.journ.crossOrigin = "anonymous";
+      images.tass.src = 'tass.png?' + Date.now(); // Добавляем timestamp чтобы избежать кеширования
+      images.journ.src = 'journ.png?' + Date.now();
       
-      // Создаём простого персонажа без лица
-      const playerCanvas = document.createElement('canvas');
-      playerCanvas.width = 50;
-      playerCanvas.height = 70;
-      const playerCtx = playerCanvas.getContext('2d');
-      
-      // Просто тело - синий прямоугольник
-      playerCtx.fillStyle = '#2196F3';
-      playerCtx.fillRect(10, 20, 30, 40);
-      
-      // Просто голова - круг БЕЗ ЛИЦА
-      playerCtx.fillStyle = '#FFCCBC';
-      playerCtx.beginPath();
-      playerCtx.arc(25, 15, 12, 0, Math.PI * 2);
-      playerCtx.fill();
-      
-      // Просто ноги
-      playerCtx.fillStyle = '#1976D2';
-      playerCtx.fillRect(12, 60, 10, 8);
-      playerCtx.fillRect(28, 60, 10, 8);
-      
-      images.playerBody.src = playerCanvas.toDataURL();
+      // Если PNG не загрузились - создаём простые круги
+      setTimeout(() => {
+        if (!images.tass.complete) {
+          console.log('tass.png не загружен, создаю простой круг');
+          const canvas = document.createElement('canvas');
+          canvas.width = 100;
+          canvas.height = 100;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(50, 50, 45, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#d32f2f';
+          ctx.lineWidth = 6;
+          ctx.stroke();
+          images.tass.src = canvas.toDataURL();
+        }
+        
+        if (!images.journ.complete) {
+          console.log('journ.png не загружен, создаю простой круг');
+          const canvas = document.createElement('canvas');
+          canvas.width = 100;
+          canvas.height = 100;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(50, 50, 45, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#1976d2';
+          ctx.lineWidth = 6;
+          ctx.stroke();
+          images.journ.src = canvas.toDataURL();
+        }
+      }, 1000); // Даём 1 секунду на загрузку PNG
     }
 
     // Инициализация игры
@@ -663,10 +654,6 @@
       if (!player.isJumping && config.game.running) {
         player.velocityY = config.player.jumpPower;
         player.isJumping = true;
-        if (sounds.jump) {
-          sounds.jump.currentTime = 0;
-          sounds.jump.play().catch(e => console.log('Звук прыжка не воспроизведён'));
-        }
       }
     }
 
@@ -753,11 +740,6 @@
           obstacles.splice(i, 1);
           config.game.lives--;
           
-          if (sounds.hit) {
-            sounds.hit.currentTime = 0;
-            sounds.hit.play().catch(e => console.log('Звук удара не воспроизведён'));
-          }
-          
           if (config.game.lives <= 0) {
             gameOver();
             return;
@@ -787,11 +769,6 @@
         if (distance < (config.player.width/2 + item.radius) * 0.8) {
           config.game.score += item.value;
           config.game.itemsCollected++;
-          
-          if (sounds.collect) {
-            sounds.collect.currentTime = 0;
-            sounds.collect.play().catch(e => console.log('Звук сбора не воспроизведён'));
-          }
           
           if (config.game.itemsCollected >= config.game.itemsToNextLevel) {
             levelUp();
@@ -840,11 +817,6 @@
       
       updateDisplay();
       updateEquipmentTrack();
-      
-      if (sounds.levelUp) {
-        sounds.levelUp.currentTime = 0;
-        sounds.levelUp.play().catch(e => console.log('Звук уровня не воспроизведён'));
-      }
     }
 
     // Конец игры
@@ -896,7 +868,7 @@
       ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, 3);
     }
 
-    // Отрисовка игрока
+    // Отрисовка игрока - ПРОСТОЙ И НАДЁЖНЫЙ
     function drawPlayer() {
       ctx.save();
       
@@ -912,35 +884,32 @@
       );
       ctx.fill();
       
-      // Рисуем изображение персонажа
-      if (images.playerBody.complete) {
-        ctx.drawImage(
-          images.playerBody,
-          player.x,
-          player.y - 5,
-          config.player.width,
-          config.player.height + 10
-        );
-      } else {
-        // Запасной вариант
-        ctx.fillStyle = '#2196F3';
-        ctx.fillRect(player.x, player.y, config.player.width, config.player.height);
-        
-        ctx.fillStyle = '#FFCCBC';
-        ctx.beginPath();
-        ctx.arc(
-          player.x + config.player.width/2,
-          player.y - 5,
-          15,
-          0, Math.PI * 2
-        );
-        ctx.fill();
-        
-        ctx.fillStyle = '#1976D2';
-        const legOffset = Math.sin(player.frame * 0.2) * 8;
-        ctx.fillRect(player.x + 5, player.y + config.player.height - 10, 10, 20 + legOffset);
-        ctx.fillRect(player.x + config.player.width - 15, player.y + config.player.height - 10, 10, 20 - legOffset);
-      }
+      // Тело (синий)
+      ctx.fillStyle = '#2196F3';
+      ctx.fillRect(player.x, player.y, config.player.width, config.player.height);
+      
+      // Голова (круг БЕЗ ЛИЦА)
+      ctx.fillStyle = '#FFCCBC';
+      ctx.beginPath();
+      ctx.arc(
+        player.x + config.player.width/2,
+        player.y - 5,
+        15,
+        0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      // Ноги (анимация бега)
+      ctx.fillStyle = '#1976D2';
+      const legOffset = Math.sin(player.frame * 0.2) * 8;
+      ctx.fillRect(player.x + 5, player.y + config.player.height - 10, 10, 20 + legOffset);
+      ctx.fillRect(player.x + config.player.width - 15, player.y + config.player.height - 10, 10, 20 - legOffset);
+      
+      // Руки
+      ctx.fillStyle = '#2196F3';
+      const armOffset = Math.sin(player.frame * 0.2) * 4;
+      ctx.fillRect(player.x - 8, player.y + 15, 12, 25 - armOffset);
+      ctx.fillRect(player.x + config.player.width - 4, player.y + 15, 12, 25 + armOffset);
       
       // Оборудование
       const icons = ['📰', '🎤', '🎙️', '📹'];
@@ -972,7 +941,7 @@
       });
     }
 
-    // Отрисовка предметов - ТОЛЬКО PNG
+    // Отрисовка предметов
     function drawItems() {
       items.forEach(item => {
         ctx.save();
@@ -1001,13 +970,28 @@
         // Логотип PNG
         const img = images[item.type];
         if (img && img.complete) {
-          ctx.save();
+          try {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(0, 0, item.radius - 4, 0, Math.PI * 2);
+            ctx.clip();
+            const size = (item.radius - 4) * 2;
+            ctx.drawImage(img, -size/2, -size/2, size, size);
+            ctx.restore();
+          } catch (e) {
+            console.log('Ошибка отрисовки PNG:', e);
+            // Если ошибка - рисуем простой цветной круг
+            ctx.fillStyle = item.type === 'tass' ? '#d32f2f' : '#1976d2';
+            ctx.beginPath();
+            ctx.arc(0, 0, item.radius - 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          // Если PNG не загружен - простой цветной круг
+          ctx.fillStyle = item.type === 'tass' ? '#d32f2f' : '#1976d2';
           ctx.beginPath();
-          ctx.arc(0, 0, item.radius - 4, 0, Math.PI * 2);
-          ctx.clip();
-          const size = (item.radius - 4) * 2;
-          ctx.drawImage(img, -size/2, -size/2, size, size);
-          ctx.restore();
+          ctx.arc(0, 0, item.radius - 6, 0, Math.PI * 2);
+          ctx.fill();
         }
         
         ctx.restore();
@@ -1022,13 +1006,6 @@
       ctx.textAlign = 'left';
       for (let i = 0; i < config.game.lives; i++) {
         ctx.fillText('❤️', 25 + i * 45, 50);
-      }
-      
-      // Тень под текстом жизни
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.font = 'bold 30px Arial';
-      for (let i = 0; i < config.game.lives; i++) {
-        ctx.fillText('❤️', 26 + i * 45, 51);
       }
       
       // Прогресс уровня
@@ -1063,23 +1040,11 @@
         barY + 10
       );
       
-      // Тень под текстом
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-      ctx.fillText(
-        `${config.game.itemsCollected} / ${config.game.itemsToNextLevel}`,
-        canvas.width/2 + 1,
-        barY + 11
-      );
-      
       // Текущий уровень
       ctx.fillStyle = '#667eea';
       ctx.font = 'bold 36px Oswald';
       ctx.textAlign = 'right';
       ctx.fillText(`УР ${config.game.level}`, canvas.width - 25, 50);
-      
-      // Тень под уровнем
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-      ctx.fillText(`УР ${config.game.level}`, canvas.width - 24, 51);
     }
 
     // Игровой цикл
