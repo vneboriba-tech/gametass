@@ -1082,8 +1082,8 @@
     }
 
     window.addEventListener('resize', handleResize);
-        // ==============================================
-    // БЛОК ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ
+        /    // ==============================================
+    // БЛОК ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ - УЛУЧШЕННАЯ ВЕРСИЯ
     // ==============================================
 
     // Переменные для управления пальцем
@@ -1092,6 +1092,7 @@
     let touchStartY = 0;
     let touchCurrentX = 0;
     let touchCurrentY = 0;
+    let isJumpTouch = false; // Флаг: это касание для прыжка?
 
     // Обработчик начала касания
     canvas.addEventListener('touchstart', (e) => {
@@ -1105,12 +1106,17 @@
       touchCurrentX = touch.clientX;
       touchCurrentY = touch.clientY;
       
-      // Если касание в верхней части экрана - прыжок
+      // Определяем тип касания по позиции
       const rect = canvas.getBoundingClientRect();
-      const touchY = touch.clientY - rect.top;
+      const touchX = touch.clientX - rect.left;
+      const canvasWidth = canvas.width;
       
-      if (touchY < canvas.height * 0.3) {
-        jump();
+      // Если касание в ПРАВОЙ половине экрана - это прыжок
+      if (touchX > canvasWidth * 0.5) {
+        isJumpTouch = true;
+        jump(); // Прыгаем сразу при касании
+      } else {
+        isJumpTouch = false; // Левая половина - движение
       }
     });
 
@@ -1123,21 +1129,23 @@
       touchCurrentX = touch.clientX;
       touchCurrentY = touch.clientY;
       
-      // Движение персонажа по горизонтали
-      const rect = canvas.getBoundingClientRect();
-      const touchX = touch.clientX - rect.left;
-      
-      // Плавное движение к точке касания
-      const targetX = touchX - config.player.width / 2;
-      const diff = targetX - player.x;
-      
-      // Плавное движение с ограничением скорости
-      player.x += diff * 0.15;
-      
-      // Ограничение движения в пределах экрана
-      if (player.x < 10) player.x = 10;
-      if (player.x + config.player.width > canvas.width - 10) {
-        player.x = canvas.width - 10 - config.player.width;
+      // Если это касание для движения (левая половина)
+      if (!isJumpTouch) {
+        const rect = canvas.getBoundingClientRect();
+        const touchX = touch.clientX - rect.left;
+        
+        // Плавное движение к точке касания
+        const targetX = touchX - config.player.width / 2;
+        const diff = targetX - player.x;
+        
+        // Плавное движение с ограничением скорости
+        player.x += diff * 0.2; // Быстрее реагирует
+        
+        // Ограничение движения в пределах экрана
+        if (player.x < 10) player.x = 10;
+        if (player.x + config.player.width > canvas.width - 10) {
+          player.x = canvas.width - 10 - config.player.width;
+        }
       }
     });
 
@@ -1145,28 +1153,62 @@
     canvas.addEventListener('touchend', (e) => {
       e.preventDefault();
       isTouching = false;
+      isJumpTouch = false;
     });
 
     // Обработчик отмены касания
     canvas.addEventListener('touchcancel', (e) => {
       e.preventDefault();
       isTouching = false;
+      isJumpTouch = false;
     });
 
-    // Дополнительно: обработка кликов на весь экран для прыжка
-    canvas.addEventListener('click', (e) => {
+    // Визуальный индикатор зон управления
+    function drawTouchZones() {
       if (!config.game.running) return;
       
-      const rect = canvas.getBoundingClientRect();
-      const clickY = e.clientY - rect.top;
+      ctx.save();
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
       
-      // Если клик в верхней половине экрана - прыжок
-      if (clickY < canvas.height * 0.5) {
-        jump();
+      // Левая зона (движение) - синяя полупрозрачная
+      ctx.fillStyle = 'rgba(33, 150, 243, 0.1)';
+      ctx.fillRect(0, 0, canvasWidth * 0.5, canvasHeight);
+      
+      // Правая зона (прыжок) - зеленая полупрозрачная
+      ctx.fillStyle = 'rgba(76, 175, 80, 0.1)';
+      ctx.fillRect(canvasWidth * 0.5, 0, canvasWidth * 0.5, canvasHeight);
+      
+      // Разделительная линия
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(canvasWidth * 0.5, 0);
+      ctx.lineTo(canvasWidth * 0.5, canvasHeight);
+      ctx.stroke();
+      
+      // Текстовые подписи (только на мобильных)
+      if (window.innerWidth <= 768) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+        ctx.font = 'bold 16px Montserrat';
+        ctx.textAlign = 'center';
+        
+        // Левая подпись
+        ctx.fillText('ДВИЖЕНИЕ', canvasWidth * 0.25, canvasHeight - 20);
+        
+        // Правая подпись
+        ctx.fillText('ПРЫЖОК', canvasWidth * 0.75, canvasHeight - 20);
+        
+        // Иконки
+        ctx.font = '24px Arial';
+        ctx.fillText('← →', canvasWidth * 0.25, canvasHeight - 50);
+        ctx.fillText('⬆️', canvasWidth * 0.75, canvasHeight - 50);
       }
-    });
+      
+      ctx.restore();
+    }
 
-    // Визуальный индикатор касания (опционально)
+    // Визуальный индикатор касания
     function drawTouchIndicator() {
       if (!isTouching || !config.game.running) return;
       
@@ -1176,28 +1218,49 @@
       
       ctx.save();
       
-      // Внешний круг
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.beginPath();
-      ctx.arc(x, y, 35, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Внутренний круг
-      ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
-      ctx.beginPath();
-      ctx.arc(x, y, 25, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Центральная точка
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.beginPath();
-      ctx.arc(x, y, 10, 0, Math.PI * 2);
-      ctx.fill();
+      // Разный цвет для разных зон
+      if (isJumpTouch) {
+        // Зеленая для прыжка
+        ctx.fillStyle = 'rgba(76, 175, 80, 0.4)';
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Стрелка вверх
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('⬆️', x, y);
+      } else {
+        // Синяя для движения
+        ctx.fillStyle = 'rgba(33, 150, 243, 0.4)';
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Рука
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('👆', x, y);
+      }
       
       ctx.restore();
     }
 
-    // Обновляем игровой цикл чтобы рисовать индикатор
+    // Обновляем игровой цикл чтобы рисовать зоны и индикатор
     const originalGameLoop = gameLoop;
     gameLoop = function() {
       if (!config.game.running) return;
@@ -1216,15 +1279,25 @@
       drawItems();
       drawPlayer();
       drawUI();
-      drawTouchIndicator(); // Добавляем индикатор касания
+      
+      // Только на мобильных: рисуем зоны управления
+      if (window.innerWidth <= 768) {
+        drawTouchZones();
+        drawTouchIndicator();
+      }
       
       requestAnimationFrame(gameLoop);
     };
 
+    // Также добавляем обработку кнопки прыжка на телефоне
+    jumpBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      jump();
+    });
+
     // ==============================================
     // КОНЕЦ БЛОКА ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ
     // ==============================================
-    // Запуск
     handleResize();
 
   </script>
