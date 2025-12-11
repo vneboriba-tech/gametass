@@ -113,11 +113,10 @@
       background: #4CAF50;
     }
 
-    /* Игровая зона */
+    /* Игровая зона - ФИКСИРОВАННЫЙ РАЗМЕР */
     .game-container {
       position: relative;
-      width: 100%;
-      max-width: 900px;
+      width: 900px;
       height: 450px;
       background: linear-gradient(to bottom, #87CEEB 0%, #98D8E8 100%);
       border-radius: 20px;
@@ -295,8 +294,15 @@
       font-size: 17px;
     }
 
-    /* Адаптивность */
-    @media (max-width: 768px) {
+    /* Адаптивность - ФИКСИРОВАННЫЙ ДИЗАЙН */
+    @media (max-width: 950px) {
+      .game-container {
+        width: 95vw;
+        height: calc(95vw * 0.5); /* Сохраняем пропорции 2:1 */
+        max-width: 900px;
+        max-height: 450px;
+      }
+      
       .title-frame h1 {
         font-size: 28px;
       }
@@ -493,24 +499,23 @@
     let obstacles = [];
     let items = [];
     let clouds = [];
+    let mountains = [];
     let lastSpawnTime = 0;
     
     // Изображения
     const images = {
       tass: new Image(),
-      journ: new Image(),
-      background: new Image()
+      journ: new Image()
     };
 
-    // Создаём фон и изображения
-    function createGameAssets() {
-      // Создаём простой фон (не загружаем внешние ресурсы)
+    // Создаём статичный фон который НЕ ДВИГАЕТСЯ
+    function createStaticBackground() {
       const bgCanvas = document.createElement('canvas');
       bgCanvas.width = 900;
       bgCanvas.height = 450;
       const bgCtx = bgCanvas.getContext('2d');
       
-      // Градиентное небо
+      // Градиентное небо - ФИКСИРОВАННОЕ
       const gradient = bgCtx.createLinearGradient(0, 0, 0, 450);
       gradient.addColorStop(0, '#87CEEB');
       gradient.addColorStop(0.7, '#76B6D8');
@@ -518,71 +523,68 @@
       bgCtx.fillStyle = gradient;
       bgCtx.fillRect(0, 0, 900, 450);
       
-      // Горы на заднем плане
+      // Горы на заднем плане - ФИКСИРОВАННЫЕ
       bgCtx.fillStyle = '#6D8B9C';
-      for (let i = 0; i < 3; i++) {
-        const x = i * 400 - 100;
-        const height = 150 + i * 30;
-        bgCtx.beginPath();
-        bgCtx.moveTo(x, 450);
-        bgCtx.lineTo(x + 200, 450 - height);
-        bgCtx.lineTo(x + 400, 450);
-        bgCtx.closePath();
-        bgCtx.fill();
-        
-        // Снежные вершины
-        bgCtx.fillStyle = '#F5F5F5';
-        bgCtx.beginPath();
-        bgCtx.moveTo(x + 180, 450 - height);
-        bgCtx.lineTo(x + 200, 450 - height - 20);
-        bgCtx.lineTo(x + 220, 450 - height);
-        bgCtx.closePath();
-        bgCtx.fill();
+      
+      // Первая гора
+      bgCtx.beginPath();
+      bgCtx.moveTo(-50, 450);
+      bgCtx.lineTo(200, 300);
+      bgCtx.lineTo(450, 450);
+      bgCtx.closePath();
+      bgCtx.fill();
+      
+      // Вторая гора
+      bgCtx.beginPath();
+      bgCtx.moveTo(350, 450);
+      bgCtx.lineTo(600, 320);
+      bgCtx.lineTo(850, 450);
+      bgCtx.closePath();
+      bgCtx.fill();
+      
+      // Снежные вершины
+      bgCtx.fillStyle = '#F5F5F5';
+      
+      // Первая вершина
+      bgCtx.beginPath();
+      bgCtx.moveTo(180, 300);
+      bgCtx.lineTo(200, 280);
+      bgCtx.lineTo(220, 300);
+      bgCtx.closePath();
+      bgCtx.fill();
+      
+      // Вторая вершина
+      bgCtx.beginPath();
+      bgCtx.moveTo(580, 320);
+      bgCtx.lineTo(600, 300);
+      bgCtx.lineTo(620, 320);
+      bgCtx.closePath();
+      bgCtx.fill();
+      
+      // Земля - ФИКСИРОВАННАЯ
+      bgCtx.fillStyle = '#8BC34A';
+      bgCtx.fillRect(0, 450 - config.groundHeight, 900, config.groundHeight);
+      
+      // Трава - ФИКСИРОВАННАЯ
+      bgCtx.fillStyle = '#689F38';
+      for (let x = 0; x < 900; x += 25) {
+        const height = 10 + Math.sin(x * 0.05) * 8;
+        bgCtx.fillRect(x, 450 - config.groundHeight, 20, -height);
       }
       
-      images.background.src = bgCanvas.toDataURL();
+      // Тень от земли
+      bgCtx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      bgCtx.fillRect(0, 450 - config.groundHeight, 900, 3);
       
-      // Загружаем PNG файлы с кешированием
-      images.tass.crossOrigin = "anonymous";
-      images.journ.crossOrigin = "anonymous";
-      images.tass.src = 'tass.png?' + Date.now(); // Добавляем timestamp чтобы избежать кеширования
-      images.journ.src = 'journ.png?' + Date.now();
-      
-      // Если PNG не загрузились - создаём простые круги
-      setTimeout(() => {
-        if (!images.tass.complete) {
-          console.log('tass.png не загружен, создаю простой круг');
-          const canvas = document.createElement('canvas');
-          canvas.width = 100;
-          canvas.height = 100;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(50, 50, 45, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#d32f2f';
-          ctx.lineWidth = 6;
-          ctx.stroke();
-          images.tass.src = canvas.toDataURL();
-        }
-        
-        if (!images.journ.complete) {
-          console.log('journ.png не загружен, создаю простой круг');
-          const canvas = document.createElement('canvas');
-          canvas.width = 100;
-          canvas.height = 100;
-          const ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.beginPath();
-          ctx.arc(50, 50, 45, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.strokeStyle = '#1976d2';
-          ctx.lineWidth = 6;
-          ctx.stroke();
-          images.journ.src = canvas.toDataURL();
-        }
-      }, 1000); // Даём 1 секунду на загрузку PNG
+      return bgCanvas;
     }
+
+    // Создаём статичный фон один раз
+    const staticBackground = createStaticBackground();
+    
+    // Загружаем PNG файлы
+    images.tass.src = 'tass.png';
+    images.journ.src = 'journ.png';
 
     // Инициализация игры
     function initGame() {
@@ -605,14 +607,15 @@
       obstacles = [];
       items = [];
       clouds = [];
+      mountains = [];
       
-      // Создаём облака
+      // Создаём облака - ОНИ ДВИГАЮТСЯ МЕДЛЕННО
       for (let i = 0; i < 8; i++) {
         clouds.push({
           x: Math.random() * canvas.width,
-          y: Math.random() * 200 + 50,
-          speed: Math.random() * 0.3 + 0.2,
-          size: Math.random() * 40 + 30,
+          y: Math.random() * 150 + 30,
+          speed: Math.random() * 0.2 + 0.1, // Медленнее
+          size: Math.random() * 40 + 20,
           opacity: Math.random() * 0.3 + 0.7
         });
       }
@@ -758,8 +761,8 @@
         item.rotation += 0.04;
         item.floatOffset += 0.05;
         
-        // Парящий эффект
-        item.y += Math.sin(item.floatOffset) * 0.5;
+        // Лёгкий парящий эффект
+        item.y += Math.sin(item.floatOffset) * 0.3;
         
         // Сбор
         const dx = player.x + config.player.width/2 - item.x;
@@ -783,12 +786,12 @@
         }
       }
       
-      // Обновление облаков
+      // Обновление облаков - МЕДЛЕННОЕ
       clouds.forEach(cloud => {
-        cloud.x -= cloud.speed * config.game.speed * 0.3;
+        cloud.x -= cloud.speed * 0.2; // Очень медленно
         if (cloud.x < -cloud.size * 2) {
           cloud.x = canvas.width + cloud.size * 2;
-          cloud.y = Math.random() * 200 + 50;
+          cloud.y = Math.random() * 150 + 30;
         }
       });
     }
@@ -828,47 +831,25 @@
       gameOverScreen.style.display = 'flex';
     }
 
-    // Отрисовка фона
+    // Отрисовка фона - СТАТИЧНЫЙ ФОН
     function drawBackground() {
-      if (images.background.complete) {
-        ctx.drawImage(images.background, 0, 0, canvas.width, canvas.height);
-      } else {
-        const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-        gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(1, '#76B6D8');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
+      // Рисуем статичный фон
+      ctx.drawImage(staticBackground, 0, 0, canvas.width, canvas.height);
       
-      // Облака
+      // Облака поверх фона - МЕДЛЕННО ДВИГАЮТСЯ
       ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       clouds.forEach(cloud => {
         ctx.globalAlpha = cloud.opacity;
         ctx.beginPath();
         ctx.arc(cloud.x, cloud.y, cloud.size, 0, Math.PI * 2);
-        ctx.arc(cloud.x + cloud.size * 0.7, cloud.y - 15, cloud.size * 0.7, 0, Math.PI * 2);
-        ctx.arc(cloud.x - cloud.size * 0.6, cloud.y - 10, cloud.size * 0.6, 0, Math.PI * 2);
+        ctx.arc(cloud.x + cloud.size * 0.7, cloud.y - 10, cloud.size * 0.7, 0, Math.PI * 2);
+        ctx.arc(cloud.x - cloud.size * 0.6, cloud.y - 5, cloud.size * 0.6, 0, Math.PI * 2);
         ctx.fill();
       });
       ctx.globalAlpha = 1;
-      
-      // Земля
-      ctx.fillStyle = '#8BC34A';
-      ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, config.groundHeight);
-      
-      // Трава
-      ctx.fillStyle = '#689F38';
-      for (let x = 0; x < canvas.width; x += 25) {
-        const height = 10 + Math.sin(config.game.time * 0.002 + x * 0.1) * 8;
-        ctx.fillRect(x, canvas.height - config.groundHeight, 20, -height);
-      }
-      
-      // Тень от земли
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
-      ctx.fillRect(0, canvas.height - config.groundHeight, canvas.width, 3);
     }
 
-    // Отрисовка игрока - ПРОСТОЙ И НАДЁЖНЫЙ
+    // Отрисовка игрока
     function drawPlayer() {
       ctx.save();
       
@@ -979,7 +960,6 @@
             ctx.drawImage(img, -size/2, -size/2, size, size);
             ctx.restore();
           } catch (e) {
-            console.log('Ошибка отрисовки PNG:', e);
             // Если ошибка - рисуем простой цветной круг
             ctx.fillStyle = item.type === 'tass' ? '#d32f2f' : '#1976d2';
             ctx.beginPath();
@@ -1088,21 +1068,22 @@
     startBtn.addEventListener('click', initGame);
     restartBtn.addEventListener('click', initGame);
 
-    // Адаптивность
+    // Адаптивность - ФИКСИРОВАННЫЙ РАЗМЕР
     function handleResize() {
       const container = document.querySelector('.game-container');
       const rect = container.getBoundingClientRect();
       
+      // Сохраняем пропорции 900:450 = 2:1
       canvas.width = rect.width;
-      canvas.height = rect.height;
+      canvas.height = rect.width * 0.5; // Соотношение 2:1
       
+      // Обновляем позицию игрока
       player.y = canvas.height - config.groundHeight - config.player.height;
     }
 
     window.addEventListener('resize', handleResize);
     
     // Запуск
-    createGameAssets();
     handleResize();
 
   </script>
