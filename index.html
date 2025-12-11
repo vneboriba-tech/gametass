@@ -1082,7 +1082,148 @@
     }
 
     window.addEventListener('resize', handleResize);
-    
+        // ==============================================
+    // БЛОК ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ
+    // ==============================================
+
+    // Переменные для управления пальцем
+    let isTouching = false;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchCurrentX = 0;
+    let touchCurrentY = 0;
+
+    // Обработчик начала касания
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      if (!config.game.running) return;
+      
+      const touch = e.touches[0];
+      isTouching = true;
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchCurrentX = touch.clientX;
+      touchCurrentY = touch.clientY;
+      
+      // Если касание в верхней части экрана - прыжок
+      const rect = canvas.getBoundingClientRect();
+      const touchY = touch.clientY - rect.top;
+      
+      if (touchY < canvas.height * 0.3) {
+        jump();
+      }
+    });
+
+    // Обработчик движения пальца
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!config.game.running || !isTouching) return;
+      
+      const touch = e.touches[0];
+      touchCurrentX = touch.clientX;
+      touchCurrentY = touch.clientY;
+      
+      // Движение персонажа по горизонтали
+      const rect = canvas.getBoundingClientRect();
+      const touchX = touch.clientX - rect.left;
+      
+      // Плавное движение к точке касания
+      const targetX = touchX - config.player.width / 2;
+      const diff = targetX - player.x;
+      
+      // Плавное движение с ограничением скорости
+      player.x += diff * 0.15;
+      
+      // Ограничение движения в пределах экрана
+      if (player.x < 10) player.x = 10;
+      if (player.x + config.player.width > canvas.width - 10) {
+        player.x = canvas.width - 10 - config.player.width;
+      }
+    });
+
+    // Обработчик окончания касания
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      isTouching = false;
+    });
+
+    // Обработчик отмены касания
+    canvas.addEventListener('touchcancel', (e) => {
+      e.preventDefault();
+      isTouching = false;
+    });
+
+    // Дополнительно: обработка кликов на весь экран для прыжка
+    canvas.addEventListener('click', (e) => {
+      if (!config.game.running) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const clickY = e.clientY - rect.top;
+      
+      // Если клик в верхней половине экрана - прыжок
+      if (clickY < canvas.height * 0.5) {
+        jump();
+      }
+    });
+
+    // Визуальный индикатор касания (опционально)
+    function drawTouchIndicator() {
+      if (!isTouching || !config.game.running) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const x = touchCurrentX - rect.left;
+      const y = touchCurrentY - rect.top;
+      
+      ctx.save();
+      
+      // Внешний круг
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(x, y, 35, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Внутренний круг
+      ctx.fillStyle = 'rgba(102, 126, 234, 0.6)';
+      ctx.beginPath();
+      ctx.arc(x, y, 25, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Центральная точка
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.restore();
+    }
+
+    // Обновляем игровой цикл чтобы рисовать индикатор
+    const originalGameLoop = gameLoop;
+    gameLoop = function() {
+      if (!config.game.running) return;
+      
+      config.game.time++;
+      
+      // Обновление
+      updatePlayer();
+      updateWorld();
+      
+      // Отрисовка
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      drawBackground();
+      drawObstacles();
+      drawItems();
+      drawPlayer();
+      drawUI();
+      drawTouchIndicator(); // Добавляем индикатор касания
+      
+      requestAnimationFrame(gameLoop);
+    };
+
+    // ==============================================
+    // КОНЕЦ БЛОКА ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ
+    // ==============================================
     // Запуск
     handleResize();
 
