@@ -1083,7 +1083,8 @@
 
     window.addEventListener('resize', handleResize);
         /    // ==============================================
-    // БЛОК ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ - УЛУЧШЕННАЯ ВЕРСИЯ
+        // ==============================================
+    // БЛОК ДЛЯ УПРАВЛЕНИЯ НА ТЕЛЕФОНЕ - ИСПРАВЛЕННАЯ ВЕРСИЯ
     // ==============================================
 
     // Переменные для управления пальцем
@@ -1092,14 +1093,60 @@
     let touchStartY = 0;
     let touchCurrentX = 0;
     let touchCurrentY = 0;
-    let isJumpTouch = false; // Флаг: это касание для прыжка?
+    let isJumpTouch = false;
 
-    // Обработчик начала касания
+    // Функция для проверки, было ли касание по кнопке
+    function isTouchOnButton(touchX, touchY) {
+      // Проверяем кнопку START (если видна)
+      if (startScreen.style.display !== 'none') {
+        const startBtnRect = startBtn.getBoundingClientRect();
+        if (touchX >= startBtnRect.left && touchX <= startBtnRect.right &&
+            touchY >= startBtnRect.top && touchY <= startBtnRect.bottom) {
+          return 'start';
+        }
+      }
+      
+      // Проверяем кнопку RESTART (если видна)
+      if (gameOverScreen.style.display !== 'none') {
+        const restartBtnRect = restartBtn.getBoundingClientRect();
+        if (touchX >= restartBtnRect.left && touchX <= restartBtnRect.right &&
+            touchY >= restartBtnRect.top && touchY <= restartBtnRect.bottom) {
+          return 'restart';
+        }
+      }
+      
+      // Проверяем кнопку прыжка (mobile-controls)
+      if (jumpBtn.style.display !== 'none') {
+        const jumpBtnRect = jumpBtn.getBoundingClientRect();
+        if (touchX >= jumpBtnRect.left && touchX <= jumpBtnRect.right &&
+            touchY >= jumpBtnRect.top && touchY <= jumpBtnRect.bottom) {
+          return 'jumpBtn';
+        }
+      }
+      
+      return false;
+    }
+
+    // Обработчик начала касания - НЕ БЛОКИРУЕМ КНОПКИ
     canvas.addEventListener('touchstart', (e) => {
+      if (!config.game.running && startScreen.style.display === 'flex') {
+        // Если игра не запущена и виден стартовый экран, пропускаем событие
+        // чтобы кнопки могли нормально обработать касание
+        return;
+      }
+      
       e.preventDefault();
       if (!config.game.running) return;
       
       const touch = e.touches[0];
+      
+      // Проверяем, не попали ли по кнопке
+      const buttonType = isTouchOnButton(touch.clientX, touch.clientY);
+      if (buttonType) {
+        // Если попали по кнопке, не обрабатываем как игровое касание
+        return;
+      }
+      
       isTouching = true;
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
@@ -1122,8 +1169,9 @@
 
     // Обработчик движения пальца
     canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
       if (!config.game.running || !isTouching) return;
+      
+      e.preventDefault();
       
       const touch = e.touches[0];
       touchCurrentX = touch.clientX;
@@ -1139,7 +1187,7 @@
         const diff = targetX - player.x;
         
         // Плавное движение с ограничением скорости
-        player.x += diff * 0.2; // Быстрее реагирует
+        player.x += diff * 0.2;
         
         // Ограничение движения в пределах экрана
         if (player.x < 10) player.x = 10;
@@ -1151,19 +1199,23 @@
 
     // Обработчик окончания касания
     canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
+      if (isTouching) {
+        e.preventDefault();
+      }
       isTouching = false;
       isJumpTouch = false;
     });
 
     // Обработчик отмены касания
     canvas.addEventListener('touchcancel', (e) => {
-      e.preventDefault();
+      if (isTouching) {
+        e.preventDefault();
+      }
       isTouching = false;
       isJumpTouch = false;
     });
 
-    // Визуальный индикатор зон управления
+    // Визуальный индикатор зон управления (только во время игры)
     function drawTouchZones() {
       if (!config.game.running) return;
       
@@ -1187,28 +1239,29 @@
       ctx.lineTo(canvasWidth * 0.5, canvasHeight);
       ctx.stroke();
       
-      // Текстовые подписи (только на мобильных)
-      if (window.innerWidth <= 768) {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      // Текстовые подсказки (только первые 5 секунд игры)
+      if (window.innerWidth <= 768 && config.game.time < 300) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.font = 'bold 16px Montserrat';
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         
         // Левая подпись
-        ctx.fillText('ДВИЖЕНИЕ', canvasWidth * 0.25, canvasHeight - 20);
+        ctx.fillText('ДВИЖЕНИЕ', canvasWidth * 0.25, canvasHeight * 0.8);
         
         // Правая подпись
-        ctx.fillText('ПРЫЖОК', canvasWidth * 0.75, canvasHeight - 20);
+        ctx.fillText('ПРЫЖОК', canvasWidth * 0.75, canvasHeight * 0.8);
         
         // Иконки
-        ctx.font = '24px Arial';
-        ctx.fillText('← →', canvasWidth * 0.25, canvasHeight - 50);
-        ctx.fillText('⬆️', canvasWidth * 0.75, canvasHeight - 50);
+        ctx.font = '20px Arial';
+        ctx.fillText('👆', canvasWidth * 0.25, canvasHeight * 0.7);
+        ctx.fillText('⬆️', canvasWidth * 0.75, canvasHeight * 0.7);
       }
       
       ctx.restore();
     }
 
-    // Визуальный индикатор касания
+    // Визуальный индикатор касания (только во время игры)
     function drawTouchIndicator() {
       if (!isTouching || !config.game.running) return;
       
@@ -1223,45 +1276,33 @@
         // Зеленая для прыжка
         ctx.fillStyle = 'rgba(76, 175, 80, 0.4)';
         ctx.beginPath();
-        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
         ctx.fill();
         
         ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
         ctx.beginPath();
-        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.arc(x, y, 15, 0, Math.PI * 2);
         ctx.fill();
-        
-        // Стрелка вверх
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.font = '20px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('⬆️', x, y);
       } else {
         // Синяя для движения
         ctx.fillStyle = 'rgba(33, 150, 243, 0.4)';
         ctx.beginPath();
-        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.arc(x, y, 25, 0, Math.PI * 2);
         ctx.fill();
         
         ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
         ctx.beginPath();
-        ctx.arc(x, y, 20, 0, Math.PI * 2);
+        ctx.arc(x, y, 15, 0, Math.PI * 2);
         ctx.fill();
-        
-        // Рука
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.font = '20px Arial';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('👆', x, y);
       }
       
       ctx.restore();
     }
 
-    // Обновляем игровой цикл чтобы рисовать зоны и индикатор
+    // Сохраняем оригинальный игровой цикл
     const originalGameLoop = gameLoop;
+    
+    // Создаем новый игровой цикл с поддержкой touch
     gameLoop = function() {
       if (!config.game.running) return;
       
@@ -1280,8 +1321,8 @@
       drawPlayer();
       drawUI();
       
-      // Только на мобильных: рисуем зоны управления
-      if (window.innerWidth <= 768) {
+      // Только на мобильных и только во время игры: рисуем зоны управления
+      if (window.innerWidth <= 768 && config.game.running) {
         drawTouchZones();
         drawTouchIndicator();
       }
@@ -1289,9 +1330,19 @@
       requestAnimationFrame(gameLoop);
     };
 
-    // Также добавляем обработку кнопки прыжка на телефоне
-    jumpBtn.addEventListener('touchstart', (e) => {
-      e.preventDefault();
+    // Исправляем обработку кнопок для мобильных
+    startBtn.addEventListener('touchstart', function(e) {
+      e.stopPropagation(); // Останавливаем всплытие события
+      initGame();
+    });
+    
+    restartBtn.addEventListener('touchstart', function(e) {
+      e.stopPropagation();
+      initGame();
+    });
+    
+    jumpBtn.addEventListener('touchstart', function(e) {
+      e.stopPropagation();
       jump();
     });
 
